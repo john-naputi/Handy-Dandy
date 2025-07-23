@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CreateChecklistTasksSection: View {
-    @Binding var tasks: [TaskDraft]
+    @Binding var tasks: [DraftTask]
     
     @FocusState private var focusedTaskID: UUID?
     
@@ -53,7 +53,7 @@ struct CreateChecklistTasksSection: View {
                 }
             }
             Button(action: {
-                let newTask = TaskDraft(title: "", description: "")
+                let newTask = DraftTask(title: "", description: "")
                 tasks.append(newTask)
                 focusedTaskID = newTask.id
             }, label: {
@@ -69,7 +69,7 @@ struct CreateChecklistTasksSection: View {
 }
 
 private struct CreateChecklistTasksSectionPreviewWrapper: View {
-    @State var tasks: [TaskDraft] = []
+    @State var tasks: [DraftTask] = []
     
     var body: some View {
         CreateChecklistTasksSection(tasks: $tasks)

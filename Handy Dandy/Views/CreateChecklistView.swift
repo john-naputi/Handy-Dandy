@@ -14,7 +14,7 @@ struct CreateChecklistView: View {
     
     @State private var title: String = ""
     @State private var description: String = ""
-    @State private var tasks: [TaskDraft] = []
+    @State private var tasks: [DraftTask] = []
     
     @FocusState private var focusedTaskID: UUID?
     
