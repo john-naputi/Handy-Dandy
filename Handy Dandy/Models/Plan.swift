@@ -13,7 +13,7 @@ class Plan {
     @Attribute(.unique) var id: UUID
     var title: String
     var planDescription: String?
-    var createdAt: Date
+    var planDate: Date
     
     @Relationship(deleteRule: .cascade, inverse: \Checklist.plan)
     var checklists: [Checklist]
@@ -21,11 +21,11 @@ class Plan {
     @Relationship(deleteRule: .cascade, inverse: \Task.plan)
     var tasks: [Task]
     
-    init(title: String, description: String? = nil, createdAt: Date = .now) {
+    init(title: String, description: String? = nil, planDate: Date = .now) {
         self.id = UUID()
         self.title = String(title.prefix(30))
         self.planDescription = description.map { String($0.prefix(150)) }
-        self.createdAt = createdAt
+        self.planDate = planDate
         self.checklists = []
         self.tasks = []
     }

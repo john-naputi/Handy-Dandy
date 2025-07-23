@@ -19,20 +19,31 @@ struct PlansListView: View {
                 ForEach(plans) { plan in
                     NavigationLink(destination: PlanDetailView(plan: plan)) {
                         VStack(alignment: .leading) {
-                            Text(plan.title)
-                                .font(.headline)
-                            Text(plan.createdAt.formatted())
-                                .font(.subheadline)
+                            HStack(spacing: 8) {
+                                Text(plan.title)
+                                    .font(.headline)
+                                Text(plan.planDate.formatted(date: .abbreviated, time: .omitted))
+                                    .font(.subheadline)
+                            }
+                            
+                            if let description = plan.planDescription {
+                                Text(description)
+                                    .font(.body)
+                                    .lineLimit(2)
+                                    .padding(.top, 4)
+                            }
                         }
                     }
                 }
             }
             .navigationTitle("Plans")
             .toolbar {
-                Button {
-                    showCreateSheet = true
-                } label: {
-                    Image(systemName: "plus")
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showCreateSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
                 }
             }
             .sheet(isPresented: $showCreateSheet) {
@@ -42,7 +53,7 @@ struct PlansListView: View {
         }
         .onAppear {
             for plan in plans {
-                print("Plan title: \(plan.title)', created at \(plan.createdAt)")
+                print("Plan title: \(plan.title)', created at \(plan.planDate)")
             }
         }
     }
@@ -51,3 +62,4 @@ struct PlansListView: View {
 #Preview {
     PlansListView()
 }
+

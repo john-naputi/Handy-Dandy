@@ -12,6 +12,7 @@ import SwiftData
 class Checklist {
     @Attribute(.unique) var id: UUID
     var title: String
+    var checklistDescription: String?
     
     @Relationship(deleteRule: .nullify)
     var plan: Plan?
@@ -19,9 +20,10 @@ class Checklist {
     @Relationship(deleteRule: .cascade, inverse: \Task.checklist)
     var tasks: [Task]
     
-    init(title: String, plan: Plan?) {
+    init(title: String, checklistDescription: String?, plan: Plan?) {
         self.id = UUID()
         self.title = title
+        self.checklistDescription = checklistDescription
         self.plan = plan
         self.tasks = []
     }

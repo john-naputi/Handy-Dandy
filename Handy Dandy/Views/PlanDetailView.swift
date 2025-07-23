@@ -11,17 +11,27 @@ struct PlanDetailView: View {
     @Bindable var plan: Plan
     @Environment(\.modelContext) private var modelContext
     
+    @State private var showCreateChecklistSheet = false
+    
     var body: some View {
         List {
             Section(header: Text("Checklists")) {
                 ForEach(plan.checklists) { checklist in
                     NavigationLink(value: checklist) {
-                        VStack(alignment: .leading) {
-                            Text(checklist.title)
-                                .font(.headline)
-                            Text("\(checklist.tasks.filter { $0.isComplete }.count) of \(checklist.tasks.count) complete")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text(checklist.title)
+                                    .font(.headline)
+                                Text("\(checklist.tasks.filter { $0.isComplete }.count) of \(checklist.tasks.count) complete")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            if let description = checklist.checklistDescription, !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                Text(description)
+                                    .font(.body)
+                                    .foregroundStyle(.primary)
+                            }
                         }
                     }
                 }
@@ -32,8 +42,7 @@ struct PlanDetailView: View {
                 }
                 
                 Button("Add Checklist") {
-                    let checklist = Checklist(title: "New Checklist", plan: plan)
-                    plan.checklists.append(checklist)
+                    showCreateChecklistSheet.toggle()
                 }
             }
             
@@ -55,6 +64,10 @@ struct PlanDetailView: View {
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showCreateChecklistSheet) {
+            CreateChecklistView(plan: plan)
+                .environment(\.modelContext, modelContext)
         }
     }
 }
