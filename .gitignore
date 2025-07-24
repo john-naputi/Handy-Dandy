@@ -1,0 +1,68 @@
+## Xcode
+build/
+DerivedData/
+*.xcworkspace
+!default.xcworkspace
+
+## Swift Package Manager
+.build/
+Packages/
+.swiftpm/
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+.swiftpm/xcode/package.xcworkspace/
+
+## CocoaPods
+Pods/
+Podfile.lock
+Podfile~
+
+## Carthage
+Carthage/Build/
+
+## Accio dependency manager
+Dependencies/
+.accio/
+
+## Xcode automatic schemes
+xcuserdata/
+
+## Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+## SwiftPM Xcode project
+Package.resolved
+
+## Xcode Sanitizer logs
+*.xccrashpoint
+*.xcscheme
+*.moved-aside
+
+## Archives
+*.xcarchive
+
+## IDE preferences
+*.xcuserstate
+*.xcscmblueprint
+
+## Preview
+*.icloud
+
+## Swift Data (CoreData + iCloud)
+*.sqlite*
+*.binary
+*.plist
+
+## SwiftUI previews cache
+*.xcpreview
+*.xcpreviews
+
+## macOS DS_Store
+.DS_Store
+
