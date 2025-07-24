@@ -29,8 +29,7 @@ struct CreateChecklistTasksSection: View {
                         
                         if !task.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             TextField("Description...", text: $task.description)
-                                .textFieldStyle(.roundedBorder)
-                                .foregroundStyle(.gray)
+                                .foregroundStyle(.secondary)
                         }
                     }
                     .padding(.vertical, 4)
