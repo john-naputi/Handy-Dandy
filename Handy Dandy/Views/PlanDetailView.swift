@@ -11,7 +11,7 @@ struct PlanDetailView: View {
     @Bindable var plan: Plan
     @Environment(\.modelContext) private var modelContext
     
-    @State private var showCreateChecklistSheet = false
+    @State private var showCreateTaskSheet = false
     
     var body: some View {
         List {
@@ -42,32 +42,49 @@ struct PlanDetailView: View {
                 }
                 
                 Button("Add Checklist") {
-                    showCreateChecklistSheet.toggle()
+                    showCreateTaskSheet.toggle()
                 }
             }
             
-            Section(header: Text("Create Task")) {
+            Section {
                 ForEach(plan.tasks.filter { $0.checklist == nil}) { task in
                     HStack {
                         Image(systemName: task.isComplete ? "checkmark.circle.fill" : "circle")
                             .onTapGesture {
                                 task.isComplete.toggle()
                             }
-                    }
-                    VStack(alignment: .leading) {
-                        Text(task.title)
-                        if let description = task.taskDescription {
-                            Text(description)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        
+                        VStack(alignment: .leading) {
+                            Text(task.title)
+                            if let description = task.taskDescription {
+                                Text(description)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }
+            } header: {
+                HStack {
+                    Text("Tasks")
+                    Spacer()
+                    Button(action: {
+                        showCreateTaskSheet.toggle()
+                    }) {
+                        Label("Add Task", systemImage: "plus.circle")
+                            .foregroundStyle(Color(.blue))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Add Task")
+                }
             }
         }
-        .sheet(isPresented: $showCreateChecklistSheet) {
-            CreateChecklistView(plan: plan)
-                .environment(\.modelContext, modelContext)
+        .sheet(isPresented: $showCreateTaskSheet) {
+            CreateTaskSheet { newTask in
+                let task = Task(title: newTask.title, description: newTask.description, plan: plan, checklist: nil)
+                modelContext.insert(task)
+                plan.tasks.append(task)
+            }
         }
     }
 }
