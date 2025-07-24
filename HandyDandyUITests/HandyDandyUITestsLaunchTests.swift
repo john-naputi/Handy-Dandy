@@ -1,13 +1,13 @@
 //
-//  Handy_DandyUITestsLaunchTests.swift
-//  Handy DandyUITests
+//  HandyDandyUITestsLaunchTests.swift
+//  HandyDandyUITests
 //
-//  Created by John Naputi on 7/20/25.
+//  Created by John Naputi on 8/2/25.
 //
 
 import XCTest
 
-final class Handy_DandyUITestsLaunchTests: XCTestCase {
+final class HandyDandyUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

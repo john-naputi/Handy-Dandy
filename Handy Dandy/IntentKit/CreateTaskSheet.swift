@@ -13,12 +13,12 @@ struct CreateTaskSheet: View {
     @State private var title: String = ""
     @State private var description: String = ""
     
-    var onAdd: (DraftTask) -> Void
+    var onAdd: (Task) -> Void
     
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Task Info")) {
+                SectionHeader(title: "Task Info") {
                     LimitedTextFieldSection(header: "Name", placeholder: "Buy eggs", text: $title)
                     LimitedTextFieldSection(header: "Description", placeholder: "2 dozen, not the 5 dozen", text: $description)
                 }
@@ -30,7 +30,7 @@ struct CreateTaskSheet: View {
                         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
                         guard !trimmedTitle.isEmpty else { return }
                         
-                        let newTask = DraftTask(title: trimmedTitle, description: description.trimmingCharacters(in: .whitespacesAndNewlines))
+                        let newTask = Task(title: trimmedTitle, description: description.trimmingCharacters(in: .whitespacesAndNewlines), plan: nil, checklist: nil)
                         onAdd(newTask)
                         
                         dismiss()

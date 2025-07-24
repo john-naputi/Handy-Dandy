@@ -12,7 +12,7 @@ import SwiftData
 class Plan {
     @Attribute(.unique) var id: UUID
     var title: String
-    var planDescription: String?
+    var planDescription: String
     var planDate: Date
     
     @Relationship(deleteRule: .cascade, inverse: \Checklist.plan)
@@ -21,12 +21,40 @@ class Plan {
     @Relationship(deleteRule: .cascade, inverse: \Task.plan)
     var tasks: [Task]
     
-    init(title: String, description: String? = nil, planDate: Date = .now) {
+    init(title: String = "", description: String = "", planDate: Date = .now, checklist: [Checklist] = [], tasks: [Task] = []) {
         self.id = UUID()
         self.title = String(title.prefix(30))
-        self.planDescription = description.map { String($0.prefix(150)) }
+        self.planDescription = String(description.prefix(30))
         self.planDate = planDate
         self.checklists = []
         self.tasks = []
+        
+        self.checklists.append(contentsOf: checklists)
+        for checklist in self.checklists {
+            checklist.plan = self
+        }
+        
+        self.tasks.append(contentsOf: tasks)
+        for task in self.tasks {
+            task.plan = self
+        }
+    }
+}
+
+extension Plan: TaskContainer {
+    func name() -> String {
+        return self.title
+    }
+    
+    func description() -> String {
+        return self.planDescription
+    }
+    
+    func addTask(_ task: Task) {
+        self.tasks.append(task)
+    }
+    
+    func removeTask(_ task: Task) {
+        self.tasks.removeAll(where: { $0.id == task.id })
     }
 }

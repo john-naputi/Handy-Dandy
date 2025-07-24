@@ -9,8 +9,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct Handy_DandyApp: App {
-
+struct HandyDandyApp: App {
     var body: some Scene {
         WindowGroup {
             PlansListView()

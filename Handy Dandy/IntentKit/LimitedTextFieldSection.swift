@@ -13,12 +13,17 @@ struct LimitedTextFieldSection: View {
     let placeholder: String
     
     @Binding var text: String
+    @FocusState private var isFocused: Bool
     
     var body: some View {
         Section(header: Text(header)) {
-            LimitedTextInput(text: $text, limit: limit) { text in
-                TextField(placeholder, text: text)
+            LimitedTextInput(text: $text, limit: 30) { $boundedText in
+                TextField(placeholder, text: $boundedText)
                     .textFieldStyle(.roundedBorder)
+                    .onSubmit {
+                        boundedText = boundedText.trimmingCharacters(in: .whitespacesAndNewlines)
+                        isFocused = false
+                    }
             }
         }
     }

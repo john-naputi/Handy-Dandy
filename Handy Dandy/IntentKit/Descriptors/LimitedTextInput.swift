@@ -34,7 +34,7 @@ struct LimitedTextInput<Content: View>: View {
             
             Text("\(limit - text.count) characters remaining")
                 .font(.caption)
-                .foregroundStyle(currentColor)
+                .foregroundStyle(Color.primary)
                 .animation(.linear, value: currentColor)
         }
     }
