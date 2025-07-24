@@ -9,57 +9,46 @@ import SwiftUI
 
 struct CreateChecklistTasksSection: View {
     @Binding var tasks: [DraftTask]
+    @State private var pendingTask: DraftTask? = nil
     
-    @FocusState private var focusedTaskID: UUID?
+    var onAddTaskTapped: () -> Void
     
     var body: some View {
-        Section(header: Text("Tasks")) {
-            ForEach($tasks) { $task in
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        TextField("Task", text: $task.title)
-                            .focused($focusedTaskID, equals: $task.id)
-                            .onChange(of: task.title) { oldTitle, newTitle in
-                                if newTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                    tasks.removeAll { $0.id == task.id }
+        Section {
+            List {
+                ForEach($tasks) { $task in
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            TextField("Task", text: $task.title)
+                                .onChange(of: task.title) { oldTitle, newTitle in
+                                    if newTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                        tasks.removeAll { $0.id == task.id }
+                                    }
                                 }
-                            }
+                        }
                         
-                        Button(action: {
-                            task.showDescription.toggle()
-                        }) {
-                            Image(systemName: task.showDescription ? "minus.circle" : "plus.circle")
-                                .foregroundStyle(Color(.blue))
+                        if !task.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            TextField("Description...", text: $task.description)
+                                .textFieldStyle(.roundedBorder)
+                                .foregroundStyle(.gray)
                         }
                     }
-                    
-                    if task.showDescription || !task.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        TextField("Description...", text: $task.description)
-                            .textFieldStyle(.roundedBorder)
-                            .foregroundStyle(.gray)
-                    }
-                }
-                .padding(.vertical, 4)
-                .onChange(of: focusedTaskID) { oldFocus, newFocus in
-                    guard let oldFocus else {
-                        return
-                    }
-                    
-                    if let index = tasks.firstIndex(where: { $0.id == oldFocus }) {
-                        if tasks[index].description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            tasks[index].showDescription = false
-                        }
-                    }
+                    .padding(.vertical, 4)
                 }
             }
-            Button(action: {
-                let newTask = DraftTask(title: "", description: "")
-                tasks.append(newTask)
-                focusedTaskID = newTask.id
-            }, label: {
-                Label("Add Task", systemImage: "plus")
-                    .foregroundColor(.blue)
-            })
+        } header: {
+            HStack {
+                Text("Tasks")
+                Spacer()
+                Button(action: {
+                    onAddTaskTapped()
+                }) {
+                    Label("Add Task", systemImage: "plus.circle")
+                        .foregroundStyle(Color(.blue))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Add Task")
+            }
         }
     }
 }
@@ -72,6 +61,8 @@ private struct CreateChecklistTasksSectionPreviewWrapper: View {
     @State var tasks: [DraftTask] = []
     
     var body: some View {
-        CreateChecklistTasksSection(tasks: $tasks)
+        CreateChecklistTasksSection(tasks: $tasks, onAddTaskTapped: {
+            print("Stuff")
+        })
     }
 }

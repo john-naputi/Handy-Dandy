@@ -15,8 +15,7 @@ struct CreateChecklistView: View {
     @State private var title: String = ""
     @State private var description: String = ""
     @State private var tasks: [DraftTask] = []
-    
-    @FocusState private var focusedTaskID: UUID?
+    @State var showCreateTaskSheet: Bool = false
     
     let plan: Plan
     
@@ -25,7 +24,9 @@ struct CreateChecklistView: View {
             Form {
                 LimitedTextFieldSection(header: "Name", placeholder: "Checklist Name", text: $title)
                 LimitedTextEditorInput(sectionHeader: "Description", inputText: $description)
-                CreateChecklistTasksSection(tasks: $tasks)
+                CreateChecklistTasksSection(tasks: $tasks, onAddTaskTapped: {
+                    showCreateTaskSheet.toggle()
+                })
             }
             .navigationTitle("Create Checklist")
             .toolbar {
@@ -50,6 +51,11 @@ struct CreateChecklistView: View {
                         dismiss()
                     }
                 }
+            }
+        }
+        .sheet(isPresented: $showCreateTaskSheet) {
+            CreateTaskSheet { newTask in
+                tasks.append(newTask)
             }
         }
     }
