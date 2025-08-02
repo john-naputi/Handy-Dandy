@@ -1,0 +1,12 @@
+//
+//  EditableTaskIntent.swift
+//  Handy Dandy
+//
+//  Created by John Naputi on 7/31/25.
+//
+
+struct EditableTaskIntent : EditableIntent, TaskIntent {
+    var data: ChecklistTask
+    var mode: EditMode
+    var delegate: TaskActionDelegate
+}

@@ -14,9 +14,13 @@ class Checklist {
     var title: String
     var checklistDescription: String
     var isComplete: Bool
+    var activityType: ActivityType
     
-    @Relationship(deleteRule: .cascade, inverse: \Task.checklist)
-    var tasks: [Task]
+    @Relationship
+    var shoppingChecklist: ShoppingChecklist?
+    
+    @Relationship(deleteRule: .cascade, inverse: \ChecklistTask.checklist)
+    var tasks: [ChecklistTask]
     
     @Relationship(deleteRule: .nullify)
     var plan: Plan?
@@ -26,12 +30,16 @@ class Checklist {
         title: String = "",
         checklistDescription: String = "",
         isComplete: Bool = false,
-        tasks: [Task] = [],
+        activityType: ActivityType = .general,
+        shoppingChecklist: ShoppingChecklist? = nil,
+        tasks: [ChecklistTask] = [],
         plan: Plan? = nil
     ) {
         self.id = id
         self.title = title
         self.isComplete = isComplete
+        self.activityType = activityType
+        self.shoppingChecklist = shoppingChecklist
         self.checklistDescription = checklistDescription
         self.plan = plan
         self.tasks = []
@@ -39,7 +47,7 @@ class Checklist {
 }
 
 extension Checklist {
-    var sortedTasks: [Task] {
+    var sortedTasks: [ChecklistTask] {
         tasks.sorted {
             if $0.isComplete == $1.isComplete {
                 return $0.title < $1.title
@@ -59,11 +67,11 @@ extension Checklist: TaskContainer {
         return self.checklistDescription
     }
     
-    func addTask(_ task: Task) {
+    func addTask(_ task: ChecklistTask) {
         tasks.append(task)
     }
     
-    func removeTask(_ task: Task) {
+    func removeTask(_ task: ChecklistTask) {
         tasks.removeAll(where: { $0.id == task.id })
     }
 }

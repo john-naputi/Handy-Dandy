@@ -18,16 +18,27 @@ class Plan {
     @Relationship(deleteRule: .cascade, inverse: \Checklist.plan)
     var checklists: [Checklist]
     
-    @Relationship(deleteRule: .cascade, inverse: \Task.plan)
-    var tasks: [Task]
+    @Relationship(deleteRule: .cascade, inverse: \ChecklistTask.plan)
+    var tasks: [ChecklistTask]
     
-    init(title: String = "", description: String = "", planDate: Date = .now, checklist: [Checklist] = [], tasks: [Task] = []) {
+    @Relationship()
+    var experience: Experience
+    
+    init(
+        title: String = "",
+        description: String = "",
+        planDate: Date = .now,
+        checklist: [Checklist] = [],
+        tasks: [ChecklistTask] = [],
+        experience: Experience = Experience()
+    ) {
         self.id = UUID()
         self.title = String(title.prefix(30))
         self.planDescription = String(description.prefix(30))
         self.planDate = planDate
         self.checklists = []
         self.tasks = []
+        self.experience = experience
         
         self.checklists.append(contentsOf: checklists)
         for checklist in self.checklists {
@@ -50,11 +61,11 @@ extension Plan: TaskContainer {
         return self.planDescription
     }
     
-    func addTask(_ task: Task) {
+    func addTask(_ task: ChecklistTask) {
         self.tasks.append(task)
     }
     
-    func removeTask(_ task: Task) {
+    func removeTask(_ task: ChecklistTask) {
         self.tasks.removeAll(where: { $0.id == task.id })
     }
 }

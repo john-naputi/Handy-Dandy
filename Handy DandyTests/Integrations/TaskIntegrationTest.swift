@@ -15,7 +15,7 @@ final class TaskIntegrationTest : XCTestCase {
     
     @MainActor
     override func setUpWithError() throws {
-        modelContainer = try ModelContainer(for: Plan.self, Checklist.self, Task.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        modelContainer = try ModelContainer(for: Plan.self, Checklist.self, ChecklistTask.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
         context = modelContainer.mainContext
     }
     
@@ -27,7 +27,7 @@ final class TaskIntegrationTest : XCTestCase {
         let checklist = Checklist(title: "Checklist", checklistDescription: "The Checklist")
         context.insert(checklist)
         
-        let task = Task(title: "Buy eggs", description: "Organic if possible")
+        let task = ChecklistTask(title: "Buy eggs", description: "Organic if possible")
         checklist.tasks.append(task)
         plan.checklists.append(checklist)
         context.insert(task)

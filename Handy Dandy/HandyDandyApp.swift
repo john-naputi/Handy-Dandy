@@ -12,8 +12,8 @@ import SwiftData
 struct HandyDandyApp: App {
     var body: some Scene {
         WindowGroup {
-            PlansListView()
+            HandyDandyEntrypoint()
         }
-        .modelContainer(for: [Plan.self, Checklist.self, Task.self])
+        .modelContainer(for: [Plan.self, Checklist.self, ChecklistTask.self])
     }
 }
