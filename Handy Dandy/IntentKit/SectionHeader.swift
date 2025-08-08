@@ -9,21 +9,21 @@ import SwiftUI
 
 struct SectionHeader<Content: View>: View {
     let title: String
+    let isRequired: Bool
+    
     @ViewBuilder let content: () -> Content
     
     var body: some View {
         Section {
             content()
         } header: {
-            Text(title)
-                .font(.headline)
-                .fontWeight(.semibold)
+            FieldLabel(title: title, isRequired: isRequired)
         }
     }
 }
 
 #Preview {
-    SectionHeader(title: "Hello") {
+    SectionHeader(title: "Hello", isRequired: false) {
         Text("Woah!!!")
     }
 }
