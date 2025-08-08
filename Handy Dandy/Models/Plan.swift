@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 enum PlanKind: String, Codable {
     case singleTask // Exactly one task
@@ -67,6 +68,26 @@ enum PlanType: String, Codable {
         case .maintenance: return "A task for regular upkeep or system care."
         case .emergency: return "A task reserved for urgent or time-sensitive actions."
         case .workout: return "A structured sequence of physical activities."
+        }
+    }
+    
+    var symbol: String {
+        switch self {
+        case .general:     return "doc"   // Default / general-purpose
+        case .shopping:    return "cart"   // Groceries, purchases
+        case .maintenance: return "wrench"   // Wrench = repair/upkeep
+        case .emergency:   return "exclamationmark.triangle"   // High-urgency visual
+        case .workout:     return "figure.strengthtraining.traditional"   // Structured exercise
+        }
+    }
+    
+    var tintColor: some ShapeStyle {
+        switch self {
+        case .general: return .gray
+        case .shopping: return .blue
+        case .maintenance: return .orange
+        case .emergency: return .red
+        case .workout: return .green
         }
     }
 }

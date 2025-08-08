@@ -24,7 +24,7 @@ struct BaseDescriptorView: View {
 
 #Preview {
     let plan = Plan(title: "Plan", description: "Plan Description", planDate: .now)
-    let intent = SinglePlanIntent(data: plan)
+    let intent = MultiPlanIntent(data: [plan])
     let payload = DescriptorPayload(
         header: "Plans",
         mode: .view(.plan(intent))

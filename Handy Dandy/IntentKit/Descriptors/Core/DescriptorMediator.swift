@@ -22,8 +22,8 @@ enum AnyDescriptorCaller {
 enum ReadonlyDescriptorCaller : DescriptorCaller {
     case checklist(ChecklistIntent)
     case task(any TaskIntent)
-    case plan(PlanIntent)
-    case experience(ExperienceIntent)
+    case plan(MultiPlanIntent)
+    case experience(any ExperienceIntent)
 }
 
 enum EditableDescriptorCaller : DescriptorCaller {
@@ -57,7 +57,7 @@ struct DescriptorMediator: View {
 
 #Preview {
     let plan = Plan(title: "Plan", description: "Description", planDate: .now)
-    let bindings = SinglePlanIntent(data: plan)
-    let payload = DescriptorPayload(header: "Plan", mode: .view(.plan(bindings)))
+    let intent = MultiPlanIntent(data: [plan])
+    let payload = DescriptorPayload(header: "Plan", mode: .view(.plan(intent)))
     DescriptorMediator(payload: payload)
 }
