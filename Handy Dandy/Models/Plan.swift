@@ -24,6 +24,14 @@ enum PlanKind: String, Codable {
         case .checklist: "Checklist"
         }
     }
+    
+    var explanation: String {
+        switch self {
+        case .singleTask: return "A plan focused on a single task."
+        case .taskList: return "A plan that contains one or more tasks."
+        case .checklist: return "A plan that contains one or more checklists."
+        }
+    }
 }
 
 enum PlanType: String, Codable {
@@ -49,6 +57,16 @@ enum PlanType: String, Codable {
             return "Emergency"
         case .workout:
             return "Workout"
+        }
+    }
+    
+    var explanation: String {
+        switch self {
+        case .general: return "A flexible plan with no specific category."
+        case .shopping: return "A checklist used for groceries or other purchases."
+        case .maintenance: return "A task for regular upkeep or system care."
+        case .emergency: return "A task reserved for urgent or time-sensitive actions."
+        case .workout: return "A structured sequence of physical activities."
         }
     }
 }
