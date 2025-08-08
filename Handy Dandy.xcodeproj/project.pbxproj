@@ -29,9 +29,22 @@
 		4A7AB6542E2D7D750035A23D /* Handy DandyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Handy DandyUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		4AE4708E2E45D19D004AAF85 /* Exceptions for "Handy Dandy" folder in "Handy Dandy" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Handy-Dandy-Info.plist",
+			);
+			target = 4A7AB63A2E2D7D730035A23D /* Handy Dandy */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4A7AB63D2E2D7D730035A23D /* Handy Dandy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				4AE4708E2E45D19D004AAF85 /* Exceptions for "Handy Dandy" folder in "Handy Dandy" target */,
+			);
 			path = "Handy Dandy";
 			sourceTree = "<group>";
 		};
@@ -391,7 +404,9 @@
 				DEVELOPMENT_TEAM = 55S6J58K9G;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Handy-Dandy-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Handy Dandy";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -421,7 +436,9 @@
 				DEVELOPMENT_TEAM = 55S6J58K9G;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Handy-Dandy-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Handy Dandy";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
