@@ -8,12 +8,59 @@
 import Foundation
 import SwiftData
 
+enum PlanKind: String, Codable {
+    case singleTask // Exactly one task
+    case taskList // Sequence of Tasks
+    case checklist // Sequence of Checklists
+    
+    var id: Self {
+        self
+    }
+    
+    var displayName: String {
+        switch self {
+        case .singleTask: "Single Task"
+        case .taskList: "Task List"
+        case .checklist: "Checklist"
+        }
+    }
+}
+
+enum PlanType: String, Codable {
+    case general // Default
+    case shopping // Only valid for checklists
+    case maintenance // Only valid for tasks
+    case emergency // Only valid for tasks
+    case workout // Reserved for the future, but tasks only
+    
+    var id: Self {
+        self
+    }
+    
+    var displayName: String {
+        switch self {
+        case .general:
+            return "General"
+        case .shopping:
+            return "Shopping"
+        case .maintenance:
+            return "Maintenance"
+        case .emergency:
+            return "Emergency"
+        case .workout:
+            return "Workout"
+        }
+    }
+}
+
 @Model
 class Plan {
     @Attribute(.unique) var id: UUID
     var title: String
     var planDescription: String
     var planDate: Date
+    var kind: PlanKind
+    var type: PlanType
     
     @Relationship(deleteRule: .cascade, inverse: \Checklist.plan)
     var checklists: [Checklist]
@@ -28,6 +75,8 @@ class Plan {
         title: String = "",
         description: String = "",
         planDate: Date = .now,
+        kind: PlanKind = .checklist,
+        type: PlanType = .shopping,
         checklist: [Checklist] = [],
         tasks: [ChecklistTask] = [],
         experience: Experience = Experience()
@@ -36,6 +85,8 @@ class Plan {
         self.title = String(title.prefix(30))
         self.planDescription = String(description.prefix(30))
         self.planDate = planDate
+        self.kind = kind
+        self.type = type
         self.checklists = []
         self.tasks = []
         self.experience = experience
