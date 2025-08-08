@@ -26,21 +26,25 @@ struct ViewableMultiExperienceDescriptor: View {
                 } else {
                     List {
                         ForEach(experiences) { experience in
-                            ExperienceRow(experience: experience)
-                                .contextMenu {
-                                    Button {
-                                        self.selectedExperience = experience
-                                    } label: {
-                                        Label("Edit", systemImage: "pencil")
+                            NavigationLink {
+                                ExperienceDetailDescriptor(experience: experience)
+                            } label: {
+                                ExperienceRow(experience: experience)
+                                    .contextMenu {
+                                        Button {
+                                            self.selectedExperience = experience
+                                        } label: {
+                                            Label("Edit", systemImage: "pencil")
+                                        }
+                                        
+                                        Button(role: .destructive) {
+                                            self.experienceToDelete = experience
+                                            showDeleteAlert.toggle()
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
                                     }
-                                    
-                                    Button(role: .destructive) {
-                                        self.experienceToDelete = experience
-                                        showDeleteAlert.toggle()
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                }
+                            }
                         }
                     }
                 }

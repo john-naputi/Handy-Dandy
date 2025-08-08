@@ -16,8 +16,8 @@ struct ViewableSwitchDescriptor: View {
             ViewableChecklistSwitchDescriptor(intent: intent)
         case .task(let taskIntent):
             ViewableTaskSwitchDescriptor(intent: taskIntent)
-        case .plan(let planBindings):
-            ViewablePlanDescriptor(bindings: planBindings)
+        case .plan:
+            Text("You should not be able to access this directly")
         case .experience(let experienceIntent):
             ViewableExperienceSwitchDescriptor(intent: experienceIntent)
         }

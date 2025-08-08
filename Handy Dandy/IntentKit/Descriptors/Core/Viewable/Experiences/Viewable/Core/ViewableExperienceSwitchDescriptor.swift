@@ -12,7 +12,7 @@ struct ViewableExperienceSwitchDescriptor: View {
     
     var body: some View {
         switch intent {
-        case let singleExperience as SingleExperienceIntent:
+        case _ as SingleExperienceIntent:
             Text("Single experience")
         case let multiExperience as MultiExperienceIntent:
             ViewableMultiExperienceDescriptor(experiences: multiExperience.data)
