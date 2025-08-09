@@ -17,7 +17,7 @@ struct ViewableSwitchDescriptor: View {
         case .task(let taskIntent):
             ViewableTaskSwitchDescriptor(intent: taskIntent)
         case .plan(let planIntent):
-            MultiPlanDescriptor(intent: planIntent)
+            PlansListDescriptor(plans: planIntent.data)
         case .experience(let experienceIntent):
             ViewableExperienceSwitchDescriptor(intent: experienceIntent)
         }

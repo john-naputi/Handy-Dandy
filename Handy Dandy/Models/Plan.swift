@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-enum PlanKind: String, Codable {
+enum PlanKind: String, Codable, CaseIterable, Identifiable {
     case singleTask // Exactly one task
     case taskList // Sequence of Tasks
     case checklist // Sequence of Checklists
@@ -35,7 +35,7 @@ enum PlanKind: String, Codable {
     }
 }
 
-enum PlanType: String, Codable {
+enum PlanType: String, Codable, CaseIterable, Identifiable{
     case general // Default
     case shopping // Only valid for checklists
     case maintenance // Only valid for tasks
