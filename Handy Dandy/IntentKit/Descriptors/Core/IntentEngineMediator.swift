@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct BaseDescriptorView: View {
-    var payload: DescriptorPayload
+struct IntentEngineMediator: View {
+    var payload: IntentEngineGateway
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -25,10 +25,10 @@ struct BaseDescriptorView: View {
 #Preview {
     let plan = Plan(title: "Plan", description: "Plan Description", planDate: .now)
     let intent = MultiPlanIntent(data: [plan])
-    let payload = DescriptorPayload(
+    let payload = IntentEngineGateway(
         header: "Plans",
         mode: .view(.plan(intent))
     )
     
-    BaseDescriptorView(payload: payload)
+    IntentEngineMediator(payload: payload)
 }

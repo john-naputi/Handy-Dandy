@@ -41,35 +41,23 @@ enum PlanListContext: Equatable {
 }
 
 struct PlansListDescriptor: View {
-    @State private var showAddPlanSheet: Bool = false
+    let context: PlanListContext
     let plans: [Plan]
+    var onSelect: (Plan) -> Void = { _ in }
     
     var body: some View {
         NavigationStack {
             if plans.isEmpty {
                 EmptyPlansListDescriptor(
-                    title: "Plans",
-                    message: "There are no plans for this experience."
+                    message: context.emptyMessage
                 )
             } else {
-                List(plans) { plan in
-                    PlanRow(plan: plan)
-                }
-                .navigationTitle("Plans")
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            showAddPlanSheet.toggle()
-                        } label: {
-                            Label("Plan", systemImage: "plus.circle.fill")
-                        }
+                ForEach(plans) { plan in
+                    Button {
+                        onSelect(plan)
+                    } label: {
+                        PlanRow(plan: plan)
                     }
-                }
-                .sheet(isPresented: $showAddPlanSheet) {
-                    let plan = Plan()
-                    let intent = EditablePlanIntent(data: plan, mode: .create)
-                    
-                    EditablePlanDescriptorV2(intent: intent)
                 }
             }
         }
@@ -77,11 +65,15 @@ struct PlansListDescriptor: View {
 }
 
 #Preview {
-    let plans: [Plan] = [
-        Plan(title: "First Plan", description: "First Description", planDate: .now, kind: .checklist, type: .shopping),
-        Plan(title: "Second Plan", description: "Second Description", planDate: .now, kind: .taskList, type: .workout),
-        Plan(title: "Third Plan", description: "Third Description", planDate: .now, kind: .singleTask, type: .emergency)
-    ]
+    let experience = Experience(
+        title: "Norway Ski Trip",
+        type: .flow,
+        plans: [
+            Plan(title: "First Plan", description: "First Description", planDate: .now, kind: .checklist, type: .shopping),
+            Plan(title: "Second Plan", description: "Second Description", planDate: .now, kind: .taskList, type: .workout),
+            Plan(title: "Third Plan", description: "Third Description", planDate: .now, kind: .singleTask, type: .emergency)
+        ]
+    )
     
-    PlansListDescriptor(plans: plans)
+    PlansListDescriptor(context: .experience(experience), plans: experience.plans)
 }

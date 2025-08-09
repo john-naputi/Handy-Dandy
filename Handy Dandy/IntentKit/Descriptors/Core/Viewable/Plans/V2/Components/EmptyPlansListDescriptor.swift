@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct EmptyPlansListDescriptor: View {
-    var title: String
     var message: String
     
     var body: some View {
@@ -25,7 +24,6 @@ struct EmptyPlansListDescriptor: View {
 }
 
 #Preview {
-    let title = "Plans"
     let message = "There are no plans for this experience."
-    EmptyPlansListDescriptor(title: title, message: message)
+    EmptyPlansListDescriptor(message: message)
 }

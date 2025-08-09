@@ -42,22 +42,22 @@ enum EditableDescriptorCaller : DescriptorCaller {
     }
 }
 
-struct DescriptorPayload {
+struct IntentEngineGateway {
     var header: String
     var mode: InvocationMode
 }
 
 struct DescriptorMediator: View {
-    var payload: DescriptorPayload
+    var payload: IntentEngineGateway
     
     var body: some View {
-        BaseDescriptorView(payload: payload)
+        IntentEngineMediator(payload: payload)
     }
 }
 
 #Preview {
     let plan = Plan(title: "Plan", description: "Description", planDate: .now)
     let intent = MultiPlanIntent(data: [plan])
-    let payload = DescriptorPayload(header: "Plan", mode: .view(.plan(intent)))
+    let payload = IntentEngineGateway(header: "Plan", mode: .view(.plan(intent)))
     DescriptorMediator(payload: payload)
 }
