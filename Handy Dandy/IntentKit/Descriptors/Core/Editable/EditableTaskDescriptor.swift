@@ -15,7 +15,6 @@ struct EditableTaskDescriptor: View {
     
     init(intent: EditableTaskIntent) {
         self.intent = intent
-        let task = intent.data
         let setupTask: ChecklistTask
         if intent.mode == .create {
             setupTask = ChecklistTask()

@@ -21,7 +21,7 @@ struct HandyDandyEntrypoint: View {
 //        let payload = DescriptorPayload(header: "Plans", mode: .view(.plan(intent)))
         
         let intent = MultiExperienceIntent(data: experiences)
-        let payload = DescriptorPayload(header: "Headers", mode: .view(.experience(intent)))
+        let payload = IntentEngineGateway(header: "Headers", mode: .view(.experience(intent)))
         DescriptorMediator(payload: payload)
     }
 }
