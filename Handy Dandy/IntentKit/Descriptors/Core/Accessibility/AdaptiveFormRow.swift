@@ -39,24 +39,9 @@ struct AdaptiveFormRow<Content: View>: View {
     let labelNote: String?
     let isAxSize: Bool
     let helpMessage: HelpMessage
+    let allyLabel: String?
     let forceStacked: Bool
     private let content: () -> Content
-
-    init(
-        label: String,
-        labelNote: String? = nil,
-        isAxSize: Bool,
-        helpMessage: HelpMessage = .none,
-        forceStacked: Bool = false,
-        @ViewBuilder content: @escaping () -> Content
-    ) {
-        self.label = label
-        self.labelNote = labelNote
-        self.isAxSize = isAxSize
-        self.helpMessage = helpMessage
-        self.forceStacked = forceStacked
-        self.content = content
-    }
 
     // single decision: stack if AX or caller forces it
     private var useStacked: Bool { forceStacked || isAxSize }
@@ -67,7 +52,7 @@ struct AdaptiveFormRow<Content: View>: View {
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .contain)
-        .accessibilityLabel(Text(label))
+        .accessibilityLabel(Text(allyLabel ?? label))
     }
 
     // MARK: - Pieces

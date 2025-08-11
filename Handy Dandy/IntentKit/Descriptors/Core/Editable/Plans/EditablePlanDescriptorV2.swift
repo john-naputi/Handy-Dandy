@@ -65,7 +65,7 @@ struct EditablePlanDescriptorV2: View {
                     }
 
                     // Description / Notes
-                    AdaptiveFormRow(label: "Description (Optional)", isAxSize: isAxSize, helpMessage: .none, forceStacked: true) {
+                    AdaptiveFormRow(label: "Description", isAxSize: isAxSize, helpMessage: .none, allyLabel: "Description, Optional", forceStacked: true) {
                         TextEditor(text: $draft.notes)
                             .frame(minHeight: isAxSize ? 140 : 96)
                             .scrollContentBackground(.hidden)
