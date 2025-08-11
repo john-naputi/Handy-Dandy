@@ -16,9 +16,6 @@ class Checklist {
     var isComplete: Bool
     var activityType: ActivityType
     
-    @Relationship
-    var shoppingChecklist: ShoppingChecklist?
-    
     @Relationship(deleteRule: .cascade, inverse: \ChecklistTask.checklist)
     var tasks: [ChecklistTask]
     
@@ -31,7 +28,6 @@ class Checklist {
         checklistDescription: String = "",
         isComplete: Bool = false,
         activityType: ActivityType = .general,
-        shoppingChecklist: ShoppingChecklist? = nil,
         tasks: [ChecklistTask] = [],
         plan: Plan? = nil
     ) {
@@ -39,7 +35,6 @@ class Checklist {
         self.title = title
         self.isComplete = isComplete
         self.activityType = activityType
-        self.shoppingChecklist = shoppingChecklist
         self.checklistDescription = checklistDescription
         self.plan = plan
         self.tasks = []
