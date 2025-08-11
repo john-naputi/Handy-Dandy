@@ -161,6 +161,13 @@ extension Experience: ContainerModel {
 }
 
 extension Experience {
+    func add(plan: Plan) {
+        self.plans.append(plan)
+        plan.experience = self
+    }
+}
+
+extension Experience {
     var systemTag: ExperienceTag {
         ExperienceTag(name: type.displayName, isSystem: true, emoji: type.emoji)
     }
