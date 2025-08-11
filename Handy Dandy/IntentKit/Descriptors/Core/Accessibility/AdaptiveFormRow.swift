@@ -45,6 +45,24 @@ struct AdaptiveFormRow<Content: View>: View {
 
     // single decision: stack if AX or caller forces it
     private var useStacked: Bool { forceStacked || isAxSize }
+    
+    init(
+        label: String,
+        labelNote: String? = nil,
+        isAxSize: Bool,
+        helpMessage: HelpMessage,
+        allyLabel: String? = nil,
+        forceStacked: Bool = false,
+        content: @escaping () -> Content
+    ) {
+        self.label = label
+        self.labelNote = labelNote
+        self.isAxSize = isAxSize
+        self.helpMessage = helpMessage
+        self.allyLabel = allyLabel
+        self.forceStacked = forceStacked
+        self.content = content
+    }
 
     var body: some View {
         Group {
