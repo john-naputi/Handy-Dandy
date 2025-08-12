@@ -90,6 +90,7 @@ struct ExperienceTests {
         
         let experience = Experience(title: "Race Day")
         experience.add(tag1); experience.add(tag1Dup); experience.add(systemTag)
+        print("Ready")
         
         #expect(experience.tags.count == 1)
         #expect(experience.tags.first?.name == "Alpha")

@@ -28,7 +28,7 @@ enum ExperienceType: String, Codable, CaseIterable {
 extension ExperienceType {
     var emoji: String {
         switch self {
-        case .flow: return "🌀"
+        case .flow: return "🔄"
         case .emergency: return "🚨"
         }
     }
@@ -142,6 +142,10 @@ extension Experience: ContainerModel {
     typealias TModel = ExperienceTag
     
     func add(_ item: ExperienceTag) {
+        if ExperienceType(rawValue: item.name.lowercased()) != nil {
+            return
+        }
+        
         guard !item.isSystem else { return }
         guard !tags.contains(where: { $0.name == item.name }) else { return }
         
