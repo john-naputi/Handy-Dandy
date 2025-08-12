@@ -59,6 +59,6 @@ struct PlanRow: View {
 }
 
 #Preview {
-    let plan = Plan(title: "Grocery Shopping", kind: .checklist, type: .workout)
+    let plan = Plan(title: "Grocery Shopping", kind: .checklist, type: .fitness)
     PlanRow(plan: plan)
 }

@@ -62,7 +62,7 @@ struct ViewableMultiChecklistDescriptor: View {
         title: "Shopping",
         description: "For the glory",
         planDate: .now,
-        checklist: [
+        checklists: [
             Checklist(title: "First checklist", checklistDescription: "First description"),
             Checklist(title: "Second checklist", checklistDescription: "Second description"),
             Checklist(title: "Third checklist", checklistDescription: "Third description")

@@ -88,7 +88,7 @@ struct PlansListDescriptor: View {
         type: .flow,
         plans: [
             Plan(title: "First Plan", description: "First Description", planDate: .now, kind: .checklist, type: .shopping),
-            Plan(title: "Second Plan", description: "Second Description", planDate: .now, kind: .taskList, type: .workout),
+            Plan(title: "Second Plan", description: "Second Description", planDate: .now, kind: .taskList, type: .fitness),
             Plan(title: "Third Plan", description: "Third Description", planDate: .now, kind: .singleTask, type: .emergency)
         ]
     )

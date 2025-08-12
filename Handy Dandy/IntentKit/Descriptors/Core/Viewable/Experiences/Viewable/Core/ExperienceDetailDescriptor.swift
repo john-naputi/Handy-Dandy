@@ -107,7 +107,7 @@ struct ExperienceDetailDescriptor: View {
         type: .flow,
         plans: [
             Plan(title: "Grocery Run", kind: .checklist, type: PlanType.shopping),
-            Plan(title: "Post-Work Excercise", kind: .singleTask, type: PlanType.workout),
+            Plan(title: "Post-Work Excercise", kind: .singleTask, type: PlanType.fitness),
             Plan(title: "Check In Hubby", kind: .singleTask, type: PlanType.emergency),
         ],
         tags: [
