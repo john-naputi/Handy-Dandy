@@ -57,6 +57,7 @@ struct ViewableMultiExperienceDescriptor: View {
                     } label: {
                         Label("Add Experience", systemImage: "plus")
                     }
+                    .accessibilityIdentifier("AddExperienceButton")
                 }
             }
             .sheet(isPresented: $showCreateExperienceSheet) {

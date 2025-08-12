@@ -14,10 +14,12 @@ struct EditableExperienceDescriptor: View {
     
     @State var draftExperience: DraftExperience
     var intent: EditableExperienceIntent
+    let date: Date
     
-    init(intent: EditableExperienceIntent) {
+    init(intent: EditableExperienceIntent, date: Date = .now) {
         self.intent = intent
         _draftExperience = State(wrappedValue: DraftExperience(from: intent.data))
+        self.date = date
     }
     
     var body: some View {
@@ -35,6 +37,7 @@ struct EditableExperienceDescriptor: View {
                             Capsule()
                                 .stroke(.white, lineWidth: 1)
                         )
+                        .accessibilityIdentifier("Editable_ExperienceTitle")
                 }
 
                 SectionHeader(title: "Description", isRequired: false) {
@@ -53,6 +56,7 @@ struct EditableExperienceDescriptor: View {
                             Capsule()
                                 .stroke(.white, lineWidth: 1)
                         )
+                        .accessibilityIdentifier("Editable_ExperienceDescription")
                 }
 
                 SectionHeader(title: "Type", isRequired: true) {
@@ -63,6 +67,7 @@ struct EditableExperienceDescriptor: View {
                         
                     }
                     .pickerStyle(.menu)
+                    .accessibilityIdentifier("Editable_ExperienceType")
                 }
                 
                 SectionHeader(title: "Dates", isRequired: true) {
@@ -72,6 +77,7 @@ struct EditableExperienceDescriptor: View {
                         in: Date()...,
                         displayedComponents: .date,
                     )
+                    .accessibilityIdentifier("Editable_ExperienceStartDate")
                     
                     DatePicker(
                         "End Date",
@@ -79,6 +85,7 @@ struct EditableExperienceDescriptor: View {
                         in: draftExperience.startDate...,
                         displayedComponents: .date
                     )
+                    .accessibilityIdentifier("Editable_ExperienceEndDate")
                     
                     EditableExperienceTagSection(draft: draftExperience)
                 }
@@ -91,6 +98,7 @@ struct EditableExperienceDescriptor: View {
                         intent.onCancel?()
                     } label: {
                         Text("Cancel")
+                            .accessibilityIdentifier("Editable_ExperienceCancelButton")
                     }
                 }
                 
@@ -120,6 +128,7 @@ struct EditableExperienceDescriptor: View {
                         Text(getSubmissionTitle())
                     }
                     .disabled(draftExperience.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .accessibilityIdentifier("Editable_ExperienceConfirmButton")
                 }
             }
         }
