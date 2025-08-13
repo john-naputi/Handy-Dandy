@@ -65,13 +65,11 @@ struct ViewablePlansListDescriptor: View {
             .sheet(isPresented: $showCreatePlanSheet) {
                 let plan = Plan(title: "", description: "", planDate: .now)
                 let intent = EditablePlanIntent(data: plan, mode: .create)
-                let caller = EditableDescriptorCaller.plan(intent)
-                EditableDescriptorView(caller: caller)
+                EditablePlanDescriptor(intent: intent)
             }
             .sheet(item: $selectedPlan) { existingPlan in
                 let intent = EditablePlanIntent(data: existingPlan, mode: .update)
-                let caller = EditableDescriptorCaller.plan(intent)
-                EditableDescriptorView(caller: caller)
+                EditablePlanDescriptor(intent: intent)
             }
         }
     }

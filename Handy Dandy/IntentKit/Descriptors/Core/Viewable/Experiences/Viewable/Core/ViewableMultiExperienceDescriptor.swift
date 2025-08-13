@@ -65,9 +65,8 @@ struct ViewableMultiExperienceDescriptor: View {
                     data: experience,
                     mode: .create,
                 )
-                let caller = EditableDescriptorCaller.experience(intent)
                 
-                EditableDescriptorView(caller: caller)
+                EditableExperienceDescriptor(intent: intent)
             }
             .sheet(item: $selectedExperience) { experience in
                 let intent = EditableExperienceIntent(
