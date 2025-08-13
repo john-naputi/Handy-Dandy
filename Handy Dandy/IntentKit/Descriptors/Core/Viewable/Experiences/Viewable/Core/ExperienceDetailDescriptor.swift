@@ -49,26 +49,44 @@ struct ExperienceDetailDescriptor: View {
             }
             .sheet(isPresented: $showAddPlanSheet) {
                 let newPlan = Plan()
-                let intent = EditablePlanIntent(data: newPlan, mode: .create)
-                
-                EditablePlanDescriptorV2(intent: intent) { plan, mode in
-                    if mode == .create {
-                        experience.plans.append(plan)
+                let intent = EditableIntent<Plan, DraftPlan>(data: newPlan, mode: .create) { outcome in
+                    switch outcome {
+                    case .create(let draft):
+                        draft.move(to: newPlan)
+                        experience.add(plan: newPlan)
+                        modelContext.insert(newPlan)
+                        try? modelContext.save()
+                    case .cancel:
+                        showAddPlanSheet = false
+                    default:
+                        assertionFailure("Invalid outcome for a create-only action.")
                     }
                 }
+                
+                EditablePlanDescriptorV2(intent: intent)
             }
             .sheet(item: $selectedPlan) { plan in
-                let intent = EditablePlanIntent(data: plan, mode: .update)
-                EditablePlanDescriptorV2(intent: intent) { plan, mode in
-                    if mode == .update {
-                        if let index = experience.plans.firstIndex(where: { $0.id == plan.id }) {
-                            self.experience.plans[index].title = plan.title
-                            self.experience.plans[index].planDescription = plan.planDescription
-                            self.experience.plans[index].kind = plan.kind
-                            self.experience.plans[index].type = plan.type
+                let intent = EditableIntent<Plan, DraftPlan>(data: plan, mode: .edit) { outcome in
+                    switch outcome {
+                    case .update(let draft):
+                        guard let index = experience.plans.firstIndex(where: { $0.id == plan.id }) else {
+                            assertionFailure("The plan you are trying to update does not exist")
+                            return
                         }
+                        
+                        draft.move(to: plan)
+                        self.experience.plans[index].title = plan.title
+                        self.experience.plans[index].planDescription = plan.planDescription
+                        self.experience.plans[index].kind = plan.kind
+                        self.experience.plans[index].type = plan.type
+                    case .cancel:
+                        selectedPlan = nil
+                    default:
+                        assertionFailure("Invalid outcome for an update-only action for experiences.")
                     }
                 }
+                
+                EditablePlanDescriptorV2(intent: intent)
             }
             .alert(
                 "Delete Plan?",

@@ -26,7 +26,7 @@ final class Plan {
     var tasks: [ChecklistTask]
     
     @Relationship(deleteRule: .nullify)
-    var experience: Experience
+    var experience: Experience?
     
     init(
         title: String = "",
@@ -37,7 +37,7 @@ final class Plan {
         cadence: PlanCadence = .freeform,
         checklists: [Checklist] = [],
         tasks: [ChecklistTask] = [],
-        experience: Experience = Experience()
+        experience: Experience? = nil
     ) {
         self.id = UUID()
         self.title = String(title.prefix(30))

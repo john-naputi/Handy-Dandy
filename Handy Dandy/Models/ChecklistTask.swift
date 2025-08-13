@@ -18,7 +18,7 @@ final class ChecklistTask {
     @Relationship(deleteRule: .nullify)
     var plan: Plan?
     
-    @Relationship(deleteRule: .nullify, inverse: \Plan.checklists)
+    @Relationship(deleteRule: .nullify)
     var checklist: Checklist?
     
     init(id: UUID = UUID(), title: String = "", description: String = "", isComplete: Bool = false, plan: Plan? = nil, checklist: Checklist? = nil) {

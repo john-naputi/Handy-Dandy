@@ -65,7 +65,7 @@ struct ViewableMultiExperienceDescriptor: View {
                     switch outcome {
                     case .create(let draft):
                         draft.copy(to: experience)
-                        for tag in draft.tagsToDelete(from: intent.data) {
+                        for tag in draft.tagsToDelete(from: experience) {
                             experience.tags.removeAll { $0.id == tag.id }
                             modelContext.delete(tag)
                         }
@@ -89,7 +89,7 @@ struct ViewableMultiExperienceDescriptor: View {
                     switch outcome {
                     case .update(let draft):
                         draft.copy(to: experience)
-                        for tag in draft.tagsToDelete(from: intent.data) {
+                        for tag in draft.tagsToDelete(from: experience) {
                             experience.tags.removeAll { $0.id == tag.id }
                             modelContext.delete(tag)
                         }
