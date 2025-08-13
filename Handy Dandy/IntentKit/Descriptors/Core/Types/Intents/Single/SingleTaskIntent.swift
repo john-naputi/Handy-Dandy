@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct SinglePlanTaskIntent : PlanTaskIntent {
+struct SinglePlanTaskIntent {
     var data: SinglePlanTaskPayload
 }
 
-struct SingleChecklistTaskIntent : ChecklistTaskIntent {
+struct SingleChecklistTaskIntent {
     var data: SingleChecklistTaskPayload
 }

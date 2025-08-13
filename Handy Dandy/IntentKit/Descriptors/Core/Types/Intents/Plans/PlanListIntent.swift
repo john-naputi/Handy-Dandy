@@ -5,6 +5,6 @@
 //  Created by John Naputi on 8/8/25.
 //
 
-struct PlanListIntent: Intent, PlanIntent {
+struct PlanListIntent: Intent {
     var data: [Plan]
 }

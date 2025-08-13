@@ -5,7 +5,7 @@
 //  Created by John Naputi on 7/31/25.
 //
 
-struct EditableTaskIntent : EditableIntent, TaskIntent {
+struct EditableTaskIntent : EditableIntent {
     var data: ChecklistTask
     var mode: EditMode
     var delegate: TaskActionDelegate

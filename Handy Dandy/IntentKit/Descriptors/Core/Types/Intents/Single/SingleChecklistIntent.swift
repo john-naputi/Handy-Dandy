@@ -7,6 +7,6 @@
 
 import SwiftUI
 
-struct SingleChecklistIntent : Intent, ChecklistIntent {
+struct SingleChecklistIntent : Intent {
     var data: SingleChecklistPayload
 }

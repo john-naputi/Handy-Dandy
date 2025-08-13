@@ -7,6 +7,6 @@
 
 import SwiftUI
 
-struct SinglePlanIntent : Intent, PlanIntent {
+struct SinglePlanIntent : Intent {
     var data: Plan
 }

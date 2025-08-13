@@ -5,6 +5,6 @@
 //  Created by John Naputi on 8/4/25.
 //
 
-struct SingleExperienceIntent: ExperienceIntent {
+struct SingleExperienceIntent {
     var data: Experience
 }

@@ -7,6 +7,6 @@
 
 import SwiftUI
 
-struct MultiChecklistIntent : Intent, ChecklistIntent {
+struct MultiChecklistIntent : Intent {
     var data: Plan
 }

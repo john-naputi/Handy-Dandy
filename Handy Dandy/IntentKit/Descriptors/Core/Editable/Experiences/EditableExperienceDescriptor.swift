@@ -13,9 +13,9 @@ struct EditableExperienceDescriptor: View {
     @Environment(\.modelContext) private var modelContext
     
     @State var draftExperience: DraftExperience
-    var intent: EditableExperienceIntent
+    var intent: EditableIntent<Experience, DraftExperience>
     
-    init(intent: EditableExperienceIntent) {
+    init(intent: EditableIntent<Experience, DraftExperience>) {
         self.intent = intent
         _draftExperience = State(wrappedValue: DraftExperience(from: intent.data))
     }
@@ -87,8 +87,8 @@ struct EditableExperienceDescriptor: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
+                        intent.outcome(.cancel)
                         dismiss()
-                        intent.onCancel?()
                     } label: {
                         Text("Cancel")
                     }
@@ -96,26 +96,13 @@ struct EditableExperienceDescriptor: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
-                        let updated = draftExperience.to(experience: intent.data)
-                        
-                        for tag in draftExperience.tagsToDelete(from: intent.data) {
-                            updated.tags.removeAll { $0.id == tag.id }
-                            modelContext.delete(tag)
-                        }
-                        
-                        let newTags = draftExperience.tagsToAdd(comparedTo: updated.tags)
-                        for tag in newTags {
-                            updated.add(tag)
-                        }
-                        
                         if intent.mode == .create {
-                            modelContext.insert(updated)
+                            intent.outcome(.create(draftExperience))
+                        } else {
+                            intent.outcome(.update(draftExperience))
                         }
-                        
-                        try? modelContext.save()
                         
                         dismiss()
-                        intent.onSave?(updated)
                     } label: {
                         Text(getSubmissionTitle())
                     }
@@ -132,13 +119,13 @@ struct EditableExperienceDescriptor: View {
 
 #Preview {
     let experience = Experience()
-    let intent = EditableExperienceIntent(data: experience, mode: .create)
+    let intent = EditableIntent<Experience, DraftExperience>(data: experience, mode: .create) { outcome in }
     EditableExperienceDescriptorPreview(intent: intent)
 }
 
 fileprivate struct EditableExperienceDescriptorPreview: View {
     @State private var draft: DraftExperience = DraftExperience()
-    var intent: EditableExperienceIntent
+    var intent: EditableIntent<Experience, DraftExperience>
     
     var body: some View {
         EditableExperienceDescriptor(intent: intent)

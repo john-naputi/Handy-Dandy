@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct EditableShoppingListIntent: EditableChecklistIntent, ShoppingListIntent {
+struct EditableShoppingListIntent: EditableChecklistIntent {
     var data: ShoppingList
     var mode: EditMode
 }

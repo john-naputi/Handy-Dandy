@@ -31,15 +31,12 @@ class DraftExperience {
         self.originalTags = self.tags
     }
     
-    func to(experience: Experience? = nil) -> Experience {
-        let model = experience ?? Experience()
-        model.title = self.title
-        model.experienceDescription = self.description
-        model.type = self.type
-        model.startDate = self.startDate
-        model.endDate = self.endDate
-        
-        return model
+    func copy(to experience: Experience) {
+        experience.title = self.title
+        experience.experienceDescription = self.description
+        experience.type = self.type
+        experience.startDate = self.startDate
+        experience.endDate = self.endDate
     }
     
     func tagsToAdd(comparedTo existing: [ExperienceTag]) -> [ExperienceTag] {
