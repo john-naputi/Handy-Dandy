@@ -50,7 +50,7 @@ struct ViewableMultiChecklistDescriptor: View {
         .sheet(isPresented: $showCreateSheet) {
             let checklist = Checklist(title: "", checklistDescription: "", plan: plan)
             let payload = SingleChecklistPayload(plan: plan, checklist: checklist)
-            let intent = EditableChecklistIntent(data: payload, mode: .create)
+            let intent = EditableGeneralChecklistIntent(data: payload, mode: .create)
             
             EditableChecklistDescriptor(intent: intent)
         }

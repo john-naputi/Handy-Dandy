@@ -17,7 +17,7 @@ struct EditableDescriptorView: View {
     var body: some View {
         switch caller {
         case .checklist(let intent):
-            EditableChecklistDescriptor(intent: intent)
+            EditableChecklistSwitchDescriptor(intent: intent)
         case .task(let taskIntent):
             EditableTaskDescriptor(intent: taskIntent)
         case .plan(let planBindings):
@@ -31,7 +31,7 @@ struct EditableDescriptorView: View {
 #Preview {
     let plan = Plan(title: "Plan", description: "Description")
     let checklist = Checklist(title: "Checklist", checklistDescription: "Description", plan: plan)
-    let intent = EditableChecklistIntent(data: SingleChecklistPayload(plan: plan, checklist: checklist), mode: .update)
+    let intent = EditableGeneralChecklistIntent(data: SingleChecklistPayload(plan: plan, checklist: checklist), mode: .update)
     let caller = EditableDescriptorCaller.checklist(intent)
     EditableDescriptorView(caller: caller)
 }

@@ -11,10 +11,10 @@ struct EditableChecklistDescriptor: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
-    var intent: EditableChecklistIntent
+    var intent: EditableGeneralChecklistIntent
     @State private var draftChecklist: Checklist
     
-    init(intent: EditableChecklistIntent) {
+    init(intent: EditableGeneralChecklistIntent) {
         self.intent = intent
         let plan = intent.data.plan
         let checklist = intent.data.checklist
@@ -80,7 +80,7 @@ fileprivate struct EditableChecklistDescriptorPreview: View {
     
     var body: some View {
         let payload = SingleChecklistPayload(plan: plan, checklist: checklist)
-        let intent = EditableChecklistIntent(data: payload, mode: .update)
+        let intent = EditableGeneralChecklistIntent(data: payload, mode: .update)
 
         EditableChecklistDescriptor(intent: intent)
     }

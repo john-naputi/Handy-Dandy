@@ -27,7 +27,7 @@ enum ReadonlyDescriptorCaller : DescriptorCaller {
 }
 
 enum EditableDescriptorCaller : DescriptorCaller {
-    case checklist(EditableChecklistIntent)
+    case checklist(any EditableChecklistIntent)
     case plan(EditablePlanIntent)
     case task(EditableTaskIntent)
     case experience(EditableExperienceIntent)

@@ -55,7 +55,7 @@ struct ViewableChecklistDescriptor: View {
             }
             .sheet(isPresented: $showEditChecklistSheet) {
                 let payload = SingleChecklistPayload(plan: payload.plan, checklist: payload.checklist)
-                let intent = EditableChecklistIntent(data: payload, mode: .update)
+                let intent = EditableGeneralChecklistIntent(data: payload, mode: .update)
                 EditableChecklistDescriptor(intent: intent)
             }
         }

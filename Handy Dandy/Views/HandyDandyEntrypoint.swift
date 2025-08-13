@@ -17,12 +17,7 @@ struct HandyDandyEntrypoint: View {
     @State private var showCreateSheet = false
     
     var body: some View {
-//        let intent = MultiPlanIntent(data: plans)
-//        let payload = DescriptorPayload(header: "Plans", mode: .view(.plan(intent)))
-        
-        let intent = MultiExperienceIntent(data: experiences)
-        let payload = IntentEngineGateway(header: "Headers", mode: .view(.experience(intent)))
-        DescriptorMediator(payload: payload)
+        ViewableMultiExperienceDescriptor(experiences: experiences)
     }
 }
 

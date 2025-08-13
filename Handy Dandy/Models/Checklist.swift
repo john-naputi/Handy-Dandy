@@ -26,7 +26,7 @@ enum ChecklistKind: String, Identifiable, Codable, CaseIterable {
 }
 
 @Model
-class Checklist {
+final class Checklist {
     @Attribute(.unique) var id: UUID
     var title: String
     var checklistDescription: String
