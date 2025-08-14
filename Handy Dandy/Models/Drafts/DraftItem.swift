@@ -19,6 +19,19 @@ struct DraftItem: Identifiable, Equatable {
     var expectedUnitPrice: Decimal?
     var currencyCode: CurrencyCode?
     
+    init(name: String = "", quantity: Decimal = 1, unit: MeasurementUnit = .each) {
+        self.id = UUID()
+        self.name = name
+        self.notes = nil
+        self.quantity = quantity
+        self.unit = unit
+        self.isDone = false
+        self.category = .automotive
+        self.customCategory = nil
+        self.expectedUnitPrice = nil
+        self.currencyCode = nil
+    }
+    
     init(from item: Item) {
         self.id = UUID()
         self.name = item.name

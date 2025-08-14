@@ -22,8 +22,7 @@ struct EditableShoppingListDescriptor: View {
                 // Placeholder
             }
             
-            ShoppingListItemsSection(draft: $draft) {
-            }
+            ShoppingListItemsSection(draft: $draft)
         }
     }
 }

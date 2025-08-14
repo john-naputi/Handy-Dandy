@@ -7,10 +7,21 @@
 
 import SwiftUI
 
+fileprivate enum ActiveSheet: Identifiable {
+    case add
+    case edit(id: UUID)
+    
+    var id: String {
+        switch self {
+        case .add: return "add"
+        case .edit(let id): return "edit-\(id)"
+        }
+    }
+}
+
 struct ShoppingListItemsSection: View {
     @Binding var draft: DraftShoppingList
-    var onAddItem: () -> Void
-    var onEditItem: ((Binding<DraftItem>) -> Void)? = nil
+    @State private var activeSheet: ActiveSheet? = nil
     
     var body: some View {
         Section("Items") {
@@ -21,18 +32,20 @@ struct ShoppingListItemsSection: View {
             
             ForEach($draft.items) { item in
                 let draftItem = item.wrappedValue
+                
                 HStack {
                     Button {
                         item.wrappedValue.isDone.toggle()
                     } label: {
                         Image(systemName: draftItem.isDone ? "checkmark.circle.fill" : "circle")
                     }
+                    .accessibilityLabel(draftItem.isDone ? "Mark as incomplete" : "Mark as complete")
                     .buttonStyle(.plain)
                     .foregroundStyle(draftItem.isDone ? Color.accentColor : Color.secondary)
                     
-                    TextField("Item Name", text: item.name)
-                        .textInputAutocapitalization(.words)
-                        .autocorrectionDisabled(true)
+                    Text(draftItem.name.isEmpty ? "Untitled" : draftItem.name)
+                        .lineLimit(1)
+                    
                     Spacer()
                     Text("\(draftItem.quantity.formattedQuantity()) \(draftItem.unit.displayName)")
                         .font(.callout)
@@ -45,8 +58,30 @@ struct ShoppingListItemsSection: View {
                     }
                 }
                 .contentShape(Rectangle())
-                .onTapGesture {
-                    onEditItem?(item)
+                .contextMenu {
+                    Button {
+                        activeSheet = .edit(id: draftItem.id)
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    
+                    Button {
+                        if let index = draft.items.firstIndex(where: { $0.id == draftItem.id }) {
+                            withAnimation(.snappy) {
+                                draft.items.insert(draftItem.duplicate(), at: min(index + 1, draft.items.count))
+                            }
+                        }
+                    } label: {
+                        Label("Duplicate", systemImage: "plus.square.on.square")
+                    }
+                    
+                    Button(role: .destructive) {
+                        withAnimation {
+                            draft.items.removeAll { $0.id == draftItem.id }
+                        }
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
                 }
                 .swipeActions(edge: .leading, allowsFullSwipe: true) {
                     Button {
@@ -66,16 +101,6 @@ struct ShoppingListItemsSection: View {
                     } label: {
                         Label("Delete", systemImage: "trash")
                     }
-                    
-                    Button {
-                        if let index = draft.items.firstIndex(where: { $0.id == draftItem.id }) {
-                            withAnimation {
-                                draft.items.insert(draftItem.duplicate(), at: index + 1)
-                            }
-                        }
-                    } label: {
-                        Label("Duplicate", systemImage: "plus.square.on.square")
-                    }
                 }
             }
             .onMove { indices, newOffset in
@@ -83,7 +108,7 @@ struct ShoppingListItemsSection: View {
             }
             
             Button {
-//                onAddItem(item)
+                activeSheet = .add
             } label: {
                 Label("Add Item", systemImage: "plus.circle")
                     .font(.body)
@@ -94,7 +119,30 @@ struct ShoppingListItemsSection: View {
             .controlSize(.large)
             .clipShape(Capsule())
         }
-        .animation(.default, value: draft.items)
+        .animation(.snappy, value: draft.items)
+        .sheet(item: $activeSheet) { which in
+            switch which {
+            case .add:
+                EditShoppingListItemSheet(draft: DraftItem(), mode: .create, currencyCode: self.draft.currencyCode, onSave: { newItem in
+                    draft.items.append(newItem)
+                }, onCancel: {})
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+                
+            case .edit(let id):
+                if let index = draft.items.firstIndex(where: { $0.id == id }) {
+                    EditShoppingListItemSheet(draft: draft.items[index], mode: .edit, currencyCode: draft.currencyCode, onSave: { updatedItem in
+                        if let updatedIndex = draft.items.firstIndex(where: { $0.id == updatedItem.id }) {
+                            draft.items[updatedIndex] = updatedItem
+                        } else {
+                            draft.items.append(updatedItem)
+                        }
+                    }, onCancel: {})
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+                }
+            }
+        }
     }
 }
 
@@ -102,14 +150,13 @@ struct ShoppingListItemsSection: View {
     let shoppingList = ShoppingList()
     let draft = DraftShoppingList(from: shoppingList)
     
-    ShoppingListItemsSectionPreview(draft: draft, onAddItem: { })
+    ShoppingListItemsSectionPreview(draft: draft)
 }
 
 fileprivate struct ShoppingListItemsSectionPreview: View {
     @State var draft: DraftShoppingList
-    var onAddItem: () -> Void
     
     var body: some View {
-        ShoppingListItemsSection(draft: $draft, onAddItem: onAddItem)
+        ShoppingListItemsSection(draft: $draft)
     }
 }
