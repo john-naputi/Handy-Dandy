@@ -117,4 +117,11 @@ extension Item {
         
         return category.name
     }
+    
+    func lineTotalLabel(currency code: CurrencyCode) -> String? {
+        guard let unit = expectedUnitPrice else { return nil }
+        let total = unit * quantity
+        
+        return MoneyFormat.string(total, code: code.iso)
+    }
 }
