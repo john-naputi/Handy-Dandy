@@ -46,11 +46,127 @@ struct ChecklistPlanDetail: View {
                             break
                         }
                     } label: {
+                        HStack(alignment: .firstTextBaseline) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(checklist.title.isEmpty ? "Untitled" : checklist.title)
+                                    .font(.body)
+                                    .lineLimit(1)
+                                Text(checklist.statusLine)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            if checklist.isCompleted {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.tint)
+                            }
+                        }
+                    }
+                    .contextMenu {
+                        if checklist.kind == .shoppingList {
+                            Button {
+                                if let list = checklist.shoppingList {
+                                    route = .editShopping(list: list)
+                                }
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                        }
                         
+                        Button(role: .destructive) {
+                            delete(checklist)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
                     }
                 }
+                .onDelete(perform: delete(at:))
+                .onMove(perform: move(from:to:))
             }
         }
+        .navigationTitle(plan.title.isEmpty ? "Checklists" : plan.title)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button {
+                        route = .createShopping
+                    } label: {
+                        Label("Shopping List", systemImage: "cart")
+                    }
+                } label: {
+                    Label("Add", systemImage: "plus.circle.fill")
+                }
+            }
+            
+            ToolbarItem(placement: .topBarLeading) {
+                EditButton()
+            }
+        }
+        .sheet(item: $route) { selectedRoute in
+            switch selectedRoute {
+            case .createShopping:
+                let shoppingList = ShoppingList()
+                let intent = EditableIntent<ShoppingList, DraftShoppingList>(data: shoppingList, mode: .create, outcome: { outcome in
+                    switch outcome {
+                    case .create(let draft):
+                        draft.apply(to: shoppingList)
+                        let checklist = Checklist(title: draft.name, kind: ChecklistKind.shoppingList, shoppingList: shoppingList)
+                        checklist.attach(to: plan)
+                        modelContext.insert(checklist)
+                        
+                        try? modelContext.save()
+                    case .cancel:
+                        route = nil
+                    default:
+                        assertionFailure("Invalid action for create-only intent.")
+                    }
+                })
+                
+                EditableShoppingListDescriptor(intent: intent)
+            
+            case .editShopping(let list):
+                let intent = EditableIntent<ShoppingList, DraftShoppingList>(data: list, mode: .edit, outcome: { outcome in
+                    switch outcome {
+                    case .update(let draft):
+                        draft.apply(to: list)
+                        try? modelContext.save()
+                    case .cancel:
+                        route = nil
+                    default:
+                        assertionFailure("Invalid action for edit-only intent.")
+                    }
+                })
+                
+                EditableShoppingListDescriptor(intent: intent)
+            }
+        }
+    }
+    
+    // MARK: - ACTIONS
+    
+    private func delete(_ checklist: Checklist) {
+        if let index = plan.checklists.firstIndex(where: { $0.id == checklist.id }) {
+            plan.checklists.remove(at: index)
+        }
+        modelContext.delete(checklist)
+        try? modelContext.save()
+    }
+    
+    private func delete(at offsets: IndexSet) {
+        for index in offsets {
+            let checklist = plan.checklists[index]
+            modelContext.delete(checklist)
+        }
+        
+        plan.checklists.remove(atOffsets: offsets)
+        try? modelContext.save()
+    }
+    
+    private func move(from src: IndexSet, to dst: Int) {
+        plan.checklists.move(fromOffsets: src, toOffset: dst)
+        try? modelContext.save()
     }
 }
 

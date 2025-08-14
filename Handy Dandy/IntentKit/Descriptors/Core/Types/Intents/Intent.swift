@@ -36,5 +36,5 @@ struct ViewIntent<TData>: Intent {
 struct EditableIntent<TData, TDraft>: Intent {
     let data: TData
     let mode: InteractionMode
-    let outcome: ((EditableIntentOutcome<TDraft>) -> Void)
+    let outcome: (EditableIntentOutcome<TDraft>) -> Void
 }

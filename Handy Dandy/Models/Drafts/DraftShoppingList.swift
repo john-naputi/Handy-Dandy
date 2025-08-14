@@ -31,4 +31,10 @@ struct DraftShoppingList {
             self.items.append(DraftItem(from: item))
         }
     }
+    
+    func apply(to shoppingList: ShoppingList) {
+//        shoppingList.title = self.name
+//        shoppingList.notes = self.notes
+//        shoppingList.items = 
+    }
 }
