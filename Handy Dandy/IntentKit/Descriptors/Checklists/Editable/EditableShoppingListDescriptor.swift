@@ -17,12 +17,37 @@ struct EditableShoppingListDescriptor: View {
     }
     
     var body: some View {
-        Form {
-            ShoppingListDetailsSection(draft: $draft) {
-                // Placeholder
+        NavigationStack {
+            Form {
+                ShoppingListDetailsSection(draft: $draft)
+                ShoppingListItemsSection(draft: $draft)
             }
-            
-            ShoppingListItemsSection(draft: $draft)
+            .navigationTitle(intent.mode == .create ? "New Shopping List" : "Edit Shopping List")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        onCommit()
+                    } label: {
+                        Text(intent.mode == .create ? "Add" : "Save")
+                    }
+                }
+                
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        intent.outcome(.cancel)
+                    } label: {
+                        Text("Cancel")
+                    }
+                }
+            }
+        }
+    }
+    
+    private func onCommit() {
+        if intent.mode == .create {
+            intent.outcome(.create(draft))
+        } else if intent.mode == .edit {
+            intent.outcome(.update(draft))
         }
     }
 }

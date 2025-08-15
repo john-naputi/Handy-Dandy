@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ShoppingListDetailsSection: View {
     @Binding var draft: DraftShoppingList
-    var onPlacePicked: () -> Void
     
     var body: some View {
         Section("Details") {
@@ -33,8 +32,6 @@ struct ShoppingListDetailsSection: View {
             
             TextField("Notes", text: $draft.notes.orEmpty)
             HStack {
-                Text("Budget")
-                Spacer()
                 LabeledContent("Budget") {
                     CurrencyTextField(value: $draft.plannedBudget, currencyCode: draft.currencyCode.iso)
                 }
@@ -62,22 +59,23 @@ struct ShoppingListDetailsSection: View {
             }
         }
     }
+    
+    private func onPlacePicked() {
+        
+    }
 }
 
 #Preview {
     let shoppingList = ShoppingList()
     let draft = DraftShoppingList(from: shoppingList)
     
-    ShoppingListDetailsSectionPreview(draft: draft) {
-        // Intentionally blank
-    }
+    ShoppingListDetailsSectionPreview(draft: draft)
 }
 
 fileprivate struct ShoppingListDetailsSectionPreview: View {
     @State var draft: DraftShoppingList
-    var onPlacePicked: () -> Void
     
     var body: some View {
-        ShoppingListDetailsSection(draft: $draft, onPlacePicked: onPlacePicked)
+        ShoppingListDetailsSection(draft: $draft)
     }
 }

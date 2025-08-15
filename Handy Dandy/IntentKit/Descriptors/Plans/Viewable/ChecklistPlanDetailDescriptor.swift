@@ -19,7 +19,7 @@ fileprivate enum SheetRoute: Identifiable {
     }
 }
 
-struct ChecklistPlanDetail: View {
+struct ChecklistPlanDetailDescriptor: View {
     @Environment(\.modelContext) private var modelContext
     @State private var route: SheetRoute? = nil
     
@@ -46,23 +46,7 @@ struct ChecklistPlanDetail: View {
                             break
                         }
                     } label: {
-                        HStack(alignment: .firstTextBaseline) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(checklist.title.isEmpty ? "Untitled" : checklist.title)
-                                    .font(.body)
-                                    .lineLimit(1)
-                                Text(checklist.statusLine)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            
-                            Spacer()
-                            
-                            if checklist.isCompleted {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(.tint)
-                            }
-                        }
+                        ChecklistRow(checklist: checklist)
                     }
                     .contextMenu {
                         if checklist.kind == .shoppingList {
@@ -89,36 +73,32 @@ struct ChecklistPlanDetail: View {
         .navigationTitle(plan.title.isEmpty ? "Checklists" : plan.title)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        route = .createShopping
+                if plan.policy.allowChecklists {
+                    Menu {
+                        Button {
+                            route = .createShopping
+                        } label: {
+                            Label("Shopping List", systemImage: "cart")
+                        }
                     } label: {
-                        Label("Shopping List", systemImage: "cart")
+                        Label("Add", systemImage: "plus.circle.fill")
                     }
-                } label: {
-                    Label("Add", systemImage: "plus.circle.fill")
                 }
             }
-            
-            ToolbarItem(placement: .topBarLeading) {
-                EditButton()
-            }
         }
-        .sheet(item: $route) { selectedRoute in
+        .sheet(item: $route, onDismiss: { route = nil }) { selectedRoute in
             switch selectedRoute {
             case .createShopping:
                 let shoppingList = ShoppingList()
                 let intent = EditableIntent<ShoppingList, DraftShoppingList>(data: shoppingList, mode: .create, outcome: { outcome in
                     switch outcome {
                     case .create(let draft):
-                        draft.apply(to: shoppingList)
+                        draft.apply(to: shoppingList, for: .create)
                         let checklist = Checklist(title: draft.name, kind: ChecklistKind.shoppingList, shoppingList: shoppingList)
                         checklist.attach(to: plan)
                         modelContext.insert(checklist)
                         
                         try? modelContext.save()
-                    case .cancel:
-                        route = nil
                     default:
                         assertionFailure("Invalid action for create-only intent.")
                     }
@@ -130,10 +110,8 @@ struct ChecklistPlanDetail: View {
                 let intent = EditableIntent<ShoppingList, DraftShoppingList>(data: list, mode: .edit, outcome: { outcome in
                     switch outcome {
                     case .update(let draft):
-                        draft.apply(to: list)
+                        draft.apply(to: list, for: .edit)
                         try? modelContext.save()
-                    case .cancel:
-                        route = nil
                     default:
                         assertionFailure("Invalid action for edit-only intent.")
                     }
@@ -142,6 +120,7 @@ struct ChecklistPlanDetail: View {
                 EditableShoppingListDescriptor(intent: intent)
             }
         }
+        .animation(.snappy, value: plan.checklists)
     }
     
     // MARK: - ACTIONS
@@ -168,9 +147,19 @@ struct ChecklistPlanDetail: View {
         plan.checklists.move(fromOffsets: src, toOffset: dst)
         try? modelContext.save()
     }
+    
+    private func save(_ file: StaticString = #fileID, _ line: UInt = #line) {
+        do {
+            try modelContext.save()
+        } catch {
+            #if DEBUG
+            print("Save error at \(file):\(line) - \(error)")
+            #endif
+        }
+    }
 }
 
 #Preview {
     let plan = Plan(title: "Groceries", kind: .checklist, type: .shopping)
-    ChecklistPlanDetail(plan: plan)
+    ChecklistPlanDetailDescriptor(plan: plan)
 }

@@ -58,24 +58,23 @@ struct PlansListDescriptor: View {
             )
         } else {
             ForEach(plans) { plan in
-                Button {
-                    onSelect(plan)
+                NavigationLink {
+                    ChecklistPlanDetailDescriptor(plan: plan)
                 } label: {
                     PlanRow(plan: plan)
-                }
-                .buttonStyle(.plain)
-                .contextMenu {
-                    Button {
-                        self.onSelect(plan)
-                    } label: {
-                        Label("Edit", systemImage: "pencil")
-                    }
-                    
-                    Button(role: .destructive) {
-                        self.onDelete(plan)
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
+                        .contextMenu {
+                            Button {
+                                self.onSelect(plan)
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            
+                            Button(role: .destructive) {
+                                self.onDelete(plan)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
                 }
             }
         }

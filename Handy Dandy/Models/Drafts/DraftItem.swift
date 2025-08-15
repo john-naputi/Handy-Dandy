@@ -13,18 +13,20 @@ struct DraftItem: Identifiable, Equatable {
     var notes: String?
     var quantity: Decimal
     var unit: MeasurementUnit
+    var priority: Int
     var isDone: Bool
     var category: ShoppingCategory
     var customCategory: String?
     var expectedUnitPrice: Decimal?
     var currencyCode: CurrencyCode?
     
-    init(name: String = "", quantity: Decimal = 1, unit: MeasurementUnit = .each) {
+    init(name: String = "", quantity: Decimal = 1, unit: MeasurementUnit = .each, priority: Int = 0) {
         self.id = UUID()
         self.name = name
         self.notes = nil
         self.quantity = quantity
         self.unit = unit
+        self.priority = priority
         self.isDone = false
         self.category = .automotive
         self.customCategory = nil
@@ -38,6 +40,7 @@ struct DraftItem: Identifiable, Equatable {
         self.notes = item.notes
         self.quantity = item.quantity
         self.unit = item.unit
+        self.priority = item.priority
         self.isDone = item.isDone
         self.category = item.category
         self.customCategory = item.customCategory
