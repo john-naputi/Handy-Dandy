@@ -20,58 +20,56 @@ struct EditablePlanDescriptorV2: View {
     }
     
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Basics") {
-                    TextField("Title", text: $draft.title)
-                        .textInputAutocapitalization(.words)
-                    TextField("Description (Optional)", text: $draft.notes, axis: .vertical)
-                        .lineLimit(1...3)
-                }
-                
-                Section("Kind") {
-                    Picker("Plan Kind", selection: $draft.kind) {
-                        ForEach(PlanKind.allCases) { kind in
-                            Text(kind.displayName).tag(kind)
-                        }
-                    }
-                }
-                
-                Section("Type") {
-                    Picker("Plan Type", selection: $draft.type) {
-                        ForEach(draft.kind.allowedPlanTypes) { type in
-                            HStack(spacing: 8) {
-                                Image(systemName: type.symbol)
-                                    .foregroundStyle(type.tintColor)
-                                Text(type.displayName)
-                            }
-                            .tag(type)
-                        }
+        Form {
+            Section("Basics") {
+                TextField("Title", text: $draft.title)
+                    .textInputAutocapitalization(.words)
+                TextField("Description (Optional)", text: $draft.notes, axis: .vertical)
+                    .lineLimit(1...3)
+            }
+            
+            Section("Kind") {
+                Picker("Plan Kind", selection: $draft.kind) {
+                    ForEach(PlanKind.allCases) { kind in
+                        Text(kind.displayName).tag(kind)
                     }
                 }
             }
-            .navigationTitle(self.intent.mode == .create ? "New Plan" : "Edit Plan")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        intent.outcome(.cancel)
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(self.intent.mode == .create ? "Create" : "Save") {
-                        switch self.intent.mode {
-                        case .create:
-                            intent.outcome(.create(draft))
-                        case .edit:
-                            intent.outcome(.update(draft))
+            
+            Section("Type") {
+                Picker("Plan Type", selection: $draft.type) {
+                    ForEach(draft.kind.allowedPlanTypes) { type in
+                        HStack(spacing: 8) {
+                            Image(systemName: type.symbol)
+                                .foregroundStyle(type.tintColor)
+                            Text(type.displayName)
                         }
-                        
-                        dismiss()
+                        .tag(type)
                     }
-                    .disabled(draft.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
+            }
+        }
+        .navigationTitle(self.intent.mode == .create ? "New Plan" : "Edit Plan")
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    intent.outcome(.cancel)
+                    dismiss()
+                }
+            }
+            
+            ToolbarItem(placement: .confirmationAction) {
+                Button(self.intent.mode == .create ? "Create" : "Save") {
+                    switch self.intent.mode {
+                    case .create:
+                        intent.outcome(.create(draft))
+                    case .edit:
+                        intent.outcome(.update(draft))
+                    }
+                    
+                    dismiss()
+                }
+                .disabled(draft.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
     }

@@ -7,9 +7,25 @@
 
 import SwiftUI
 
+fileprivate enum ItemSheetRoute: Identifiable {
+    case add
+    case edit(id: UUID)
+    
+    var id: String {
+        switch self {
+        case .add: return "add"
+        case .edit(let id): return "edit-\(id)"
+        }
+    }
+}
+
 struct EditableShoppingListDescriptor: View {
+    @Environment(\.dismiss) private var dismiss
+    
     let intent: EditableIntent<ShoppingList, DraftShoppingList>
     @State private var draft: DraftShoppingList
+    @State private var itemSheet: ItemSheetRoute? = nil
+    @State private var detent: PresentationDetent = .medium
     
     init(intent: EditableIntent<ShoppingList, DraftShoppingList>) {
         self.intent = intent
@@ -17,26 +33,55 @@ struct EditableShoppingListDescriptor: View {
     }
     
     var body: some View {
-        NavigationStack {
-            Form {
-                ShoppingListDetailsSection(draft: $draft)
-                ShoppingListItemsSection(draft: $draft)
-            }
-            .navigationTitle(intent.mode == .create ? "New Shopping List" : "Edit Shopping List")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        onCommit()
-                    } label: {
-                        Text(intent.mode == .create ? "Add" : "Save")
-                    }
+        Form {
+            ShoppingListDetailsSection(draft: $draft)
+            ShoppingListItemsSection(draft: $draft, onAddTapped: {
+                itemSheet = .add
+            }, onEditTapped: { id in
+                itemSheet = .edit(id: id)
+            })
+        }
+        .navigationTitle(intent.mode == .create ? "New Shopping List" : "Edit Shopping List")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    onCommit()
+                } label: {
+                    Text(intent.mode == .create ? "Add" : "Save")
                 }
+            }
+            
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    intent.outcome(.cancel)
+                    dismiss()
+                } label: {
+                    Text("Cancel")
+                }
+            }
+        }
+        .sheet(item: $itemSheet, onDismiss: { itemSheet = nil }) { route in
+            switch route {
+            case .add:
+                EditShoppingListItemSheet(draft: DraftItem(), mode: .create, currencyCode: self.draft.currencyCode, onSave: { newItem in
+                    draft.items.append(newItem)
+                }, onCancel: {})
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
                 
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        intent.outcome(.cancel)
-                    } label: {
-                        Text("Cancel")
+            case .edit(let id):
+                if let index = draft.items.firstIndex(where: { $0.id == id }) {
+                    EditShoppingListItemSheet(draft: draft.items[index], mode: .edit, currencyCode: draft.currencyCode, onSave: { updatedItem in
+                        if let updatedIndex = draft.items.firstIndex(where: { $0.id == updatedItem.id }) {
+                            draft.items[updatedIndex] = updatedItem
+                        } else {
+                            draft.items.append(updatedItem)
+                        }
+                    }, onCancel: {})
+                    .presentationDetents([.medium, .large], selection: $detent)
+                    .presentationDragIndicator(.visible)
+                    .onAppear {
+                        detent = .large
                     }
                 }
             }
@@ -49,6 +94,8 @@ struct EditableShoppingListDescriptor: View {
         } else if intent.mode == .edit {
             intent.outcome(.update(draft))
         }
+        
+        dismiss()
     }
 }
 

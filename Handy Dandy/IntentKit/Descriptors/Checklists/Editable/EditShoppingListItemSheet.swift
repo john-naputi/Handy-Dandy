@@ -100,9 +100,9 @@ struct EditShoppingListItemSheet: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-        }
-        .onAppear {
-            focused = .name
+            .onAppear {
+                focused = .name
+            }
         }
     }
 }

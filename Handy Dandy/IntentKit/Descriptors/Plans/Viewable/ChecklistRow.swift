@@ -12,7 +12,9 @@ struct ChecklistRow: View {
     
     var body: some View {
         NavigationLink {
-            ShoppingListDetailDescriptor(checklist: checklist)
+            if let list = checklist.shoppingList {
+                ShoppingListDetailDescriptor(list: list)
+            }
         } label: {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 4) {

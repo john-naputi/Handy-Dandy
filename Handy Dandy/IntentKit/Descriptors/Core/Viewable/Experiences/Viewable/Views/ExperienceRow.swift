@@ -12,33 +12,31 @@ struct ExperienceRow: View {
     var experience: Experience
     
     var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading) {
-                Text(experience.title)
-                    .font(.headline)
-                Text("Date: \(experience.getExperienceDate())")
-                Text("Number of plans: \(experience.plans.count)")
-                    .foregroundStyle(.primary)
-                
-                let visibleTags: [ExperienceTag] = [experience.systemTag] + experience.tags.sorted(by: tagSort)
-                let rows = chunked(visibleTags, into: 3)
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(rows.indices, id: \.self) { rowIndex in
-                        HStack(spacing: 8) {
-                            ForEach(rows[rowIndex], id: \.id) { tag in
-                                TagPill(tag: tag)
-                            }
+        VStack(alignment: .leading) {
+            Text(experience.title)
+                .font(.headline)
+            Text("Date: \(experience.getExperienceDate())")
+            Text("Number of plans: \(experience.plans.count)")
+                .foregroundStyle(.primary)
+            
+            let visibleTags: [ExperienceTag] = [experience.systemTag] + experience.tags.sorted(by: tagSort)
+            let rows = chunked(visibleTags, into: 3)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(rows.indices, id: \.self) { rowIndex in
+                    HStack(spacing: 8) {
+                        ForEach(rows[rowIndex], id: \.id) { tag in
+                            TagPill(tag: tag)
                         }
                     }
                 }
-                
-                if let description = experience.experienceDescription, !description.isEmpty {
-                    Text(experience.experienceDescription!)
-                        .font(.body)
-                        .padding(.top, 6)
-                        .foregroundStyle(.primary)
-                }
+            }
+            
+            if let description = experience.experienceDescription, !description.isEmpty {
+                Text(experience.experienceDescription!)
+                    .font(.body)
+                    .padding(.top, 6)
+                    .foregroundStyle(.primary)
             }
         }
     }

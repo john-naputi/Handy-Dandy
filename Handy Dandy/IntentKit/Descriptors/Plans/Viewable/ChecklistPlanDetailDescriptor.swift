@@ -7,22 +7,13 @@
 
 import SwiftUI
 
-fileprivate enum SheetRoute: Identifiable {
+fileprivate enum ShoppingListRoutes: Hashable {
     case createShopping
-    case editShopping(list: ShoppingList)
-    
-    var id: String {
-        switch self {
-        case .createShopping: return "create-shopping"
-        case .editShopping(let list): return "edit-\(list.id.uuidString)"
-        }
-    }
+    case editShopping(id: UUID)
 }
 
 struct ChecklistPlanDetailDescriptor: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var route: SheetRoute? = nil
-    
     let plan: Plan
     
     var body: some View {
@@ -35,35 +26,24 @@ struct ChecklistPlanDetailDescriptor: View {
             
             Section("Checklists") {
                 ForEach(plan.checklists) { checklist in
-                    Button {
-                        switch checklist.kind {
-                        case .shoppingList:
-                            if let list = checklist.shoppingList {
-                                route = .editShopping(list: list)
-                            }
-                        case .general:
-                            // TODO: present general checklist editor
-                            break
-                        }
-                    } label: {
-                        ChecklistRow(checklist: checklist)
-                    }
-                    .contextMenu {
-                        if checklist.kind == .shoppingList {
-                            Button {
-                                if let list = checklist.shoppingList {
-                                    route = .editShopping(list: list)
-                                }
+                    switch checklist.kind {
+                    case .shoppingList:
+                        if let list = checklist.shoppingList {
+                            NavigationLink {
+                                ShoppingListDetailDescriptor(list: list)
                             } label: {
-                                Label("Edit", systemImage: "pencil")
+                                ChecklistRow(checklist: checklist)
+                            }
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    delete(checklist)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
-                        
-                        Button(role: .destructive) {
-                            delete(checklist)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
+                    case .general:
+                        Text("General")
                     }
                 }
                 .onDelete(perform: delete(at:))
@@ -75,8 +55,20 @@ struct ChecklistPlanDetailDescriptor: View {
             ToolbarItem(placement: .topBarTrailing) {
                 if plan.policy.allowChecklists {
                     Menu {
-                        Button {
-                            route = .createShopping
+                        NavigationLink {
+                            let shoppingList = ShoppingList()
+                            let intent = EditableIntent<ShoppingList, DraftShoppingList>(data: shoppingList, mode: .create, outcome: { outcome in
+                                if case .create(let draft) = outcome {
+                                    draft.apply(to: shoppingList, for: .create)
+                                    let checklist = Checklist(title: draft.name, kind: .shoppingList, shoppingList: shoppingList)
+                                    checklist.attach(to: plan)
+                                    
+                                    modelContext.insert(checklist)
+                                    try? modelContext.save()
+                                }
+                            })
+                            
+                            EditableShoppingListDescriptor(intent: intent)
                         } label: {
                             Label("Shopping List", systemImage: "cart")
                         }
@@ -84,40 +76,6 @@ struct ChecklistPlanDetailDescriptor: View {
                         Label("Add", systemImage: "plus.circle.fill")
                     }
                 }
-            }
-        }
-        .sheet(item: $route, onDismiss: { route = nil }) { selectedRoute in
-            switch selectedRoute {
-            case .createShopping:
-                let shoppingList = ShoppingList()
-                let intent = EditableIntent<ShoppingList, DraftShoppingList>(data: shoppingList, mode: .create, outcome: { outcome in
-                    switch outcome {
-                    case .create(let draft):
-                        draft.apply(to: shoppingList, for: .create)
-                        let checklist = Checklist(title: draft.name, kind: ChecklistKind.shoppingList, shoppingList: shoppingList)
-                        checklist.attach(to: plan)
-                        modelContext.insert(checklist)
-                        
-                        try? modelContext.save()
-                    default:
-                        assertionFailure("Invalid action for create-only intent.")
-                    }
-                })
-                
-                EditableShoppingListDescriptor(intent: intent)
-            
-            case .editShopping(let list):
-                let intent = EditableIntent<ShoppingList, DraftShoppingList>(data: list, mode: .edit, outcome: { outcome in
-                    switch outcome {
-                    case .update(let draft):
-                        draft.apply(to: list, for: .edit)
-                        try? modelContext.save()
-                    default:
-                        assertionFailure("Invalid action for edit-only intent.")
-                    }
-                })
-                
-                EditableShoppingListDescriptor(intent: intent)
             }
         }
         .animation(.snappy, value: plan.checklists)

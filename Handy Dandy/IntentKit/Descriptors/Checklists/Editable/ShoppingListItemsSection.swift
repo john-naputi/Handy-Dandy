@@ -7,21 +7,10 @@
 
 import SwiftUI
 
-fileprivate enum ActiveSheet: Identifiable {
-    case add
-    case edit(id: UUID)
-    
-    var id: String {
-        switch self {
-        case .add: return "add"
-        case .edit(let id): return "edit-\(id)"
-        }
-    }
-}
-
 struct ShoppingListItemsSection: View {
     @Binding var draft: DraftShoppingList
-    @State private var activeSheet: ActiveSheet? = nil
+    var onAddTapped: () -> Void
+    var onEditTapped: (UUID) -> Void
     
     var body: some View {
         Section("Items") {
@@ -58,9 +47,12 @@ struct ShoppingListItemsSection: View {
                     }
                 }
                 .contentShape(Rectangle())
+                .onTapGesture {
+                    onEditTapped(item.id)
+                }
                 .contextMenu {
                     Button {
-                        activeSheet = .edit(id: draftItem.id)
+                        onEditTapped(item.id)
                     } label: {
                         Label("Edit", systemImage: "pencil")
                     }
@@ -107,9 +99,7 @@ struct ShoppingListItemsSection: View {
                 draft.items.move(fromOffsets: indices, toOffset: newOffset)
             }
             
-            Button {
-                activeSheet = .add
-            } label: {
+            Button(action: onAddTapped) {
                 Label("Add Item", systemImage: "plus.circle")
                     .font(.body)
                     .padding(.vertical, 10)
@@ -120,29 +110,6 @@ struct ShoppingListItemsSection: View {
             .clipShape(Capsule())
         }
         .animation(.snappy, value: draft.items)
-        .sheet(item: $activeSheet) { which in
-            switch which {
-            case .add:
-                EditShoppingListItemSheet(draft: DraftItem(), mode: .create, currencyCode: self.draft.currencyCode, onSave: { newItem in
-                    draft.items.append(newItem)
-                }, onCancel: {})
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-                
-            case .edit(let id):
-                if let index = draft.items.firstIndex(where: { $0.id == id }) {
-                    EditShoppingListItemSheet(draft: draft.items[index], mode: .edit, currencyCode: draft.currencyCode, onSave: { updatedItem in
-                        if let updatedIndex = draft.items.firstIndex(where: { $0.id == updatedItem.id }) {
-                            draft.items[updatedIndex] = updatedItem
-                        } else {
-                            draft.items.append(updatedItem)
-                        }
-                    }, onCancel: {})
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.visible)
-                }
-            }
-        }
     }
 }
 
@@ -150,13 +117,15 @@ struct ShoppingListItemsSection: View {
     let shoppingList = ShoppingList()
     let draft = DraftShoppingList(from: shoppingList)
     
-    ShoppingListItemsSectionPreview(draft: draft)
+    ShoppingListItemsSectionPreview(draft: draft, onAddTapped: {}, onEditTapped: { _ in })
 }
 
 fileprivate struct ShoppingListItemsSectionPreview: View {
     @State var draft: DraftShoppingList
+    var onAddTapped: () -> Void
+    var onEditTapped: (UUID) -> Void
     
     var body: some View {
-        ShoppingListItemsSection(draft: $draft)
+        ShoppingListItemsSection(draft: $draft, onAddTapped: onAddTapped, onEditTapped: onEditTapped)
     }
 }
