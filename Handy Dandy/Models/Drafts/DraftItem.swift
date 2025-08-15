@@ -63,8 +63,49 @@ struct DraftItem: Identifiable, Equatable {
         return copy
     }
     
-    mutating func finalize() {
-        self.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.notes = notes?.trimmingCharacters(in: .whitespacesAndNewlines)
+    mutating func prepare() {
+        self.name = self.name.trimmed()
+        self.notes = self.notes?.trimmed()
+    }
+    
+    func finalize(list: ShoppingList) -> Item {
+        Item(
+            id: self.id,
+            list: list,
+            name: name.trimmed(),
+            notes: notes?.trimmed(),
+            quantity: max(0, quantity),
+            unit: unit,
+            isDone: isDone,
+            category: category,
+            customCategory: customCategory?.trimmed(),
+            expectedUnitPrice: expectedUnitPrice.nonNegative,
+            priority: priority,
+            sortKey: nextSortKey(for: list),
+            createdAt: .now,
+            updatedAt: .now
+        )
+    }
+    
+    func apply(to target: Item, for mode: InteractionMode) {
+        target.name = name.trimmed()
+        target.notes = notes?.trimmed()
+        target.quantity = max(0, quantity)
+        target.unit = unit
+        target.isDone = isDone
+        target.category = category
+        target.customCategory = customCategory?.trimmed()
+        target.expectedUnitPrice = expectedUnitPrice.nonNegative
+        target.priority = priority
+        
+        if mode == .create {
+            target.createdAt = .now
+        }
+        
+        target.updatedAt = .now
+    }
+    
+    private func nextSortKey(for list: ShoppingList) -> Int {
+        (list.items.map(\.sortKey).max() ?? -1) + 1
     }
 }

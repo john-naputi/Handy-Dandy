@@ -85,7 +85,7 @@ struct EditShoppingListItemSheet: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
-                        draft.finalize()
+                        draft.prepare()
                         onSave(draft)
                         dismiss()
                     } label: {

@@ -17,3 +17,13 @@ extension Decimal {
         return formatter.string(from: NSDecimalNumber(decimal: self)) ?? "\(self)"
     }
 }
+
+extension Optional where Wrapped == Decimal {
+    var nonNegative: Decimal? {
+        guard let value = self else {
+            return nil
+        }
+        
+        return max(0, value)
+    }
+}
