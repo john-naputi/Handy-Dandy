@@ -63,19 +63,23 @@ struct EditableShoppingListDescriptor: View {
         .sheet(item: $itemSheet, onDismiss: { itemSheet = nil }) { route in
             switch route {
             case .add:
-                EditShoppingListItemSheet(draft: DraftItem(), mode: .create, currencyCode: self.draft.currencyCode, onSave: { newItem in
-                    draft.items.append(newItem)
+                EditShoppingListItemSheet(draft: DraftItem(), mode: .create, currencyCode: self.draft.currencyCode, onSave: { outcome in
+                    if case let .create(itemDraft) = outcome {
+                        draft.items.append(itemDraft)
+                    }
                 }, onCancel: {})
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
                 
             case .edit(let id):
                 if let index = draft.items.firstIndex(where: { $0.id == id }) {
-                    EditShoppingListItemSheet(draft: draft.items[index], mode: .edit, currencyCode: draft.currencyCode, onSave: { updatedItem in
-                        if let updatedIndex = draft.items.firstIndex(where: { $0.id == updatedItem.id }) {
-                            draft.items[updatedIndex] = updatedItem
-                        } else {
-                            draft.items.append(updatedItem)
+                    EditShoppingListItemSheet(draft: draft.items[index], mode: .edit, currencyCode: draft.currencyCode, onSave: { outcome in
+                        if case let .update(item) = outcome {
+                            if let updatedIndex = draft.items.firstIndex(where: { $0.id == item.id }) {
+                                draft.items[updatedIndex] = item
+                            } else {
+                                draft.items.append(item)
+                            }
                         }
                     }, onCancel: {})
                     .presentationDetents([.medium, .large], selection: $detent)

@@ -36,7 +36,6 @@ enum ActiveSheet: Identifiable {
 }
 
 struct ShoppingListDetailDescriptor: View {
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
     @State private var filter: ItemFilter = .all
@@ -88,22 +87,30 @@ struct ShoppingListDetailDescriptor: View {
                 TotalsFooter(estimate: estimateTotal, budget: list.plannedBudget, delta: delta)
             }
             
-            Section(isExpanded: $showDetails) {
-                // Read-only details; reuse formatting utilities!!!!!
-                if let notes = list.notes, !notes.isEmpty {
-                    LabeledContent("Notes", value: notes)
+            Section {
+                DisclosureGroup(isExpanded: $showDetails) {
+                    // Read-only details; reuse formatting utilities!!!!!
+                    if let notes = list.notes, !notes.isEmpty {
+                        LabeledContent("Notes", value: notes)
+                    }
+                    
+                    if let budget = list.plannedBudget {
+                        LabeledContent("Budget", value: MoneyFormat.string(from: budget, code: list.currencyCode.iso))
+                    } else {
+                        LabeledContent("Budget", value: "N/A")
+                    }
+                    
+                    LabeledContent("Created At", value: list.createdAt.formatted())
+                    LabeledContent("Updated At", value: list.updatedAt.formatted())
+                } label: {
+                    Text("Details")
                 }
-                
-                LabeledContent("Budget", value: MoneyFormat.string(list.plannedBudget ?? 0, code: list.currencyCode.iso) ?? "N/A")
-                LabeledContent("Created At", value: list.createdAt.formatted())
-                LabeledContent("Updated At", value: list.updatedAt.formatted())
-            } header: {
-                Text("Details")
             }
         }
         .navigationTitle(list.title)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
+                EditButton()
                 Button {
                     activeSheet = .add
                 } label: {
@@ -155,8 +162,8 @@ struct ShoppingListDetailDescriptor: View {
                     draft: DraftItem(),
                     mode: .create,
                     currencyCode: list.currencyCode,
-                    onSave: { draft in
-                        
+                    onSave: { outcome in
+                        handleItemOutcome(outcome)
                     },
                     onCancel: {
                         self.activeSheet = nil
@@ -168,8 +175,8 @@ struct ShoppingListDetailDescriptor: View {
                         draft: DraftItem(from: list.items[index]),
                         mode: .edit,
                         currencyCode: list.currencyCode,
-                        onSave: { draft in
-                            print("Do something here")
+                        onSave: { outcome in
+                            handleItemOutcome(outcome)
                         },
                         onCancel: {
                             self.activeSheet = nil
@@ -191,7 +198,7 @@ struct ShoppingListDetailDescriptor: View {
     }
     
     private var estimateTotal: Decimal {
-        list.items.reduce(0) { $0 + ($1.expectedUnitPrice ?? 0) }
+        list.items.reduce(0) { $0 + ($1.expectedPrice ?? 0) }
     }
     
     private var delta: Decimal {
@@ -200,19 +207,30 @@ struct ShoppingListDetailDescriptor: View {
     
     private func moveItems(from source: IndexSet, to destination: Int) {
         list.items.move(fromOffsets: source, toOffset: destination)
-        
-        // Normalize and persist stable order
-        for (index, item) in list.items.enumerated() {
-            item.sortKey = index
-        }
+        normalizeSortKeys()
         
         do {
+            touchList()
             try modelContext.save()
         } catch {
             #if DEBUG
             print("Failed to save item reorder: \(error)")
             #endif
         }
+    }
+    
+    private func deleteItems(at offsets: IndexSet) {
+        let ids = offsets.compactMap { filteredItems[safe: $0]?.id }
+        for id in ids {
+            if let index = list.items.firstIndex(where: { $0.id == id }) {
+                let item = list.items.remove(at: index)
+                modelContext.delete(item)
+            }
+        }
+        
+        normalizeSortKeys()
+        touchList()
+        try? modelContext.save()
     }
     
     private func sort(_ kind: SortKind) {
@@ -229,17 +247,17 @@ struct ShoppingListDetailDescriptor: View {
                 return first == second ? $0.name < $1.name : first < second
             }
         }
-    }
-    
-    private func deleteItems(at offsets: IndexSet) {
-        let ids = offsets.compactMap { filteredItems[safe: $0]?.id }
-        list.items.removeAll(where: { ids.contains($0.id) })
+        
+        normalizeSortKeys()
+        touchList()
         try? modelContext.save()
     }
     
-//    private func deleteItems(with offsets: IndexSet) {
-//        deleteItems(at: offsets)
-//    }
+    private func normalizeSortKeys() {
+        for (index, item) in list.items.enumerated() {
+            item.sortKey = index
+        }
+    }
     
     private func markAllDone() {
         for item in list.items {
@@ -248,12 +266,21 @@ struct ShoppingListDetailDescriptor: View {
                 item.updatedAt = .now
             }
         }
+        
+        touchList()
+        try? modelContext.save()
     }
     
     func toggleDone(_ item: Item) {
         item.isDone.toggle()
         item.updatedAt = .now
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        touchList()
         try? modelContext.save()
+    }
+    
+    private func touchList() {
+        list.updatedAt = .now
     }
     
     private func handleItemOutcome(_ outcome: EditableIntentOutcome<DraftItem>) {
@@ -261,9 +288,7 @@ struct ShoppingListDetailDescriptor: View {
         case .create(let draft):
             let newItem = draft.finalize(list: list)
             list.items.append(newItem)
-            for (index, item) in list.items.enumerated() {
-                item.sortKey = index
-            }
+            normalizeSortKeys()
             
             try? modelContext.save()
         case .update(let draft):
@@ -274,6 +299,8 @@ struct ShoppingListDetailDescriptor: View {
         default:
             assertionFailure("Invalid operation for create or edit action.")
         }
+        
+        self.activeSheet = nil
     }
     
     private func indexFor(_ id: UUID) -> Int? {

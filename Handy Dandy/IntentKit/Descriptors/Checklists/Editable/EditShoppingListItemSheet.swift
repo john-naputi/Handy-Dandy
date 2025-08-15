@@ -19,14 +19,14 @@ struct EditShoppingListItemSheet: View {
     let currencyCode: CurrencyCode
     @State private var draft: DraftItem
     
-    var onSave: (DraftItem) -> Void = { _ in }
+    var onSave: (EditableIntentOutcome<DraftItem>) -> Void = { _ in }
     var onCancel: () -> Void = {}
     
     init(
         draft: DraftItem,
         mode: InteractionMode,
         currencyCode: CurrencyCode,
-        onSave: @escaping (DraftItem) -> Void,
+        onSave: @escaping (EditableIntentOutcome<DraftItem>) -> Void,
         onCancel: @escaping () -> Void
     ) {
         self.mode = mode
@@ -86,7 +86,7 @@ struct EditShoppingListItemSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
                         draft.prepare()
-                        onSave(draft)
+                        mode == .create ? onSave(.create(draft)) : onSave(.update(draft))
                         dismiss()
                     } label: {
                         if mode == .create {

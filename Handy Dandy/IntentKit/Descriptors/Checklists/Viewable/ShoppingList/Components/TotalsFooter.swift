@@ -29,7 +29,7 @@ struct TotalsFooter: View {
             HStack(spacing: 12) {
                 StatPill(
                     label: "Estimate",
-                    text: MoneyFormat.string(from: estimate),
+                    value: MoneyFormat.string(from: estimate),
                     style: .neutral,
                     icon: "cart"
                 )
@@ -37,13 +37,13 @@ struct TotalsFooter: View {
                 if let budget {
                     StatPill(
                         label: "Budget",
-                        text: MoneyFormat.string(from: budget),
+                        value: MoneyFormat.string(from: budget),
                         style: .info,
                         icon: "wallet.pass")
                 }
                 
                 StatPill(label: "Price Delta",
-                         text: MoneyFormat.string(from: delta),
+                         value: MoneyFormat.string(from: delta),
                          style: delta <= 0 ? .good : .warn,
                          icon: "triangle.righthalf.filled",
                          compact: true)

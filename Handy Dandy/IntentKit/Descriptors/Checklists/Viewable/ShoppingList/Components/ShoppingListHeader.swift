@@ -10,33 +10,52 @@ import SwiftUI
 struct ShoppingListHeader: View {
     let list: ShoppingList
     
+    private var iso: String {
+        list.currencyCode.iso
+    }
+    
+    private var estimate: Decimal {
+        list.items.reduce(0) { $0 + ($1.expectedPrice ?? 0 )}
+    }
+    
+    private var delta: Decimal {
+        estimate - (list.plannedBudget ?? 0)
+    }
+    
+    private var axSummary: String {
+            let budgetText = list.plannedBudget.map { MoneyFormat.string(from: $0, code: iso) } ?? "not set"
+            let estimateText = MoneyFormat.string(from: estimate, code: iso)
+            let deltaText = MoneyFormat.string(from: delta, code: iso)
+            return "Budget \(budgetText), Estimate \(estimateText), Delta \(deltaText)"
+        }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(list.title)
-                .font(.title2)
-                .bold()
-            
             HStack(spacing: 12) {
                 StatPill(
                     label: "Budget",
-                    text: MoneyFormat.string(0, code: list.currencyCode.iso) ?? "",
-                    style: StatPillStyle.info,
+                    value: list.plannedBudget.map { MoneyFormat.string(from: $0, code: iso )} ?? "-",
+                    style: .info,
                     icon: "wallet.pass"
                 )
                 StatPill(
                     label: "Estimate",
-                    text: MoneyFormat.string(list.estimatedFromItems, code: list.currencyCode.iso) ?? "",
+                    value: MoneyFormat.string(from: estimate, code: iso),
                     style: .neutral,
                     icon: "cart"
                 )
                 StatPill(
                     label: "Budget Difference",
-                    text: MoneyFormat.string(list.budgetDelta ?? 0, code: list.currencyCode.iso) ?? "",
-                    style: .good,
+                    value: MoneyFormat.string(from: delta, code: iso),
+                    style: (delta <= 0 ? .good : .warn),
                     icon: "triangle.righthalf.fill"
                 )
             }
         }
+        .padding(.vertical, 8)
+        .listRowInsets(.init())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(axSummary)
     }
 }
 

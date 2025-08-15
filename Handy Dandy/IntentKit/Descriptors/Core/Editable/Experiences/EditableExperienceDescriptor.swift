@@ -21,91 +21,93 @@ struct EditableExperienceDescriptor: View {
     }
     
     var body: some View {
-        Form {
-            SectionHeader(title: "Title", isRequired: true) {
-                TextField("", text: $draftExperience.title)
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 16)
-                    .background(
-                        Capsule()
-                            .stroke(intent.data.getColor(for: colorScheme), lineWidth: 1.5)
-                    )
-                    .overlay(
-                        Capsule()
-                            .stroke(.white, lineWidth: 1)
-                    )
-            }
+        NavigationStack {
+            Form {
+                SectionHeader(title: "Title", isRequired: true) {
+                    TextField("", text: $draftExperience.title)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 16)
+                        .background(
+                            Capsule()
+                                .stroke(intent.data.getColor(for: colorScheme), lineWidth: 1.5)
+                        )
+                        .overlay(
+                            Capsule()
+                                .stroke(.white, lineWidth: 1)
+                        )
+                }
 
-            SectionHeader(title: "Description", isRequired: false) {
-                let descriptionBinding = Binding<String>(
-                    get: { draftExperience.description ?? "" },
-                    set: { draftExperience.description = $0.isEmpty ? nil : $0 }
-                )
-                TextField("", text: descriptionBinding)
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 32)
-                    .background(
-                        Capsule()
-                            .stroke(intent.data.getColor(for: colorScheme), lineWidth: 1.5)
+                SectionHeader(title: "Description", isRequired: false) {
+                    let descriptionBinding = Binding<String>(
+                        get: { draftExperience.description ?? "" },
+                        set: { draftExperience.description = $0.isEmpty ? nil : $0 }
                     )
-                    .overlay(
-                        Capsule()
-                            .stroke(.white, lineWidth: 1)
-                    )
-            }
+                    TextField("", text: descriptionBinding)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 32)
+                        .background(
+                            Capsule()
+                                .stroke(intent.data.getColor(for: colorScheme), lineWidth: 1.5)
+                        )
+                        .overlay(
+                            Capsule()
+                                .stroke(.white, lineWidth: 1)
+                        )
+                }
 
-            SectionHeader(title: "Type", isRequired: true) {
-                Picker("Type", selection: $draftExperience.type) {
-                    ForEach(ExperienceType.allCases, id: \.self) { type in
-                        Text(type.displayName).tag(type)
+                SectionHeader(title: "Type", isRequired: true) {
+                    Picker("Type", selection: $draftExperience.type) {
+                        ForEach(ExperienceType.allCases, id: \.self) { type in
+                            Text(type.displayName).tag(type)
+                        }
+                        
                     }
+                    .pickerStyle(.menu)
+                }
+                
+                SectionHeader(title: "Dates", isRequired: true) {
+                    DatePicker(
+                        "Start Date",
+                        selection: $draftExperience.startDate,
+                        in: Date()...,
+                        displayedComponents: .date,
+                    )
                     
-                }
-                .pickerStyle(.menu)
-            }
-            
-            SectionHeader(title: "Dates", isRequired: true) {
-                DatePicker(
-                    "Start Date",
-                    selection: $draftExperience.startDate,
-                    in: Date()...,
-                    displayedComponents: .date,
-                )
-                
-                DatePicker(
-                    "End Date",
-                    selection: $draftExperience.endDate,
-                    in: draftExperience.startDate...,
-                    displayedComponents: .date
-                )
-                
-                EditableExperienceTagSection(draft: draftExperience)
-            }
-        }
-        .padding()
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button {
-                    intent.outcome(.cancel)
-                    dismiss()
-                } label: {
-                    Text("Cancel")
+                    DatePicker(
+                        "End Date",
+                        selection: $draftExperience.endDate,
+                        in: draftExperience.startDate...,
+                        displayedComponents: .date
+                    )
+                    
+                    EditableExperienceTagSection(draft: draftExperience)
                 }
             }
-            
-            ToolbarItem(placement: .confirmationAction) {
-                Button {
-                    if intent.mode == .create {
-                        intent.outcome(.create(draftExperience))
-                    } else {
-                        intent.outcome(.update(draftExperience))
+            .padding()
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        intent.outcome(.cancel)
+                        dismiss()
+                    } label: {
+                        Text("Cancel")
                     }
-                    
-                    dismiss()
-                } label: {
-                    Text(getSubmissionTitle())
                 }
-                .disabled(draftExperience.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        if intent.mode == .create {
+                            intent.outcome(.create(draftExperience))
+                        } else {
+                            intent.outcome(.update(draftExperience))
+                        }
+                        
+                        dismiss()
+                    } label: {
+                        Text(getSubmissionTitle())
+                    }
+                    .disabled(draftExperience.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
             }
         }
     }

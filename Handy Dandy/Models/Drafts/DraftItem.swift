@@ -35,7 +35,7 @@ struct DraftItem: Identifiable, Equatable {
     }
     
     init(from item: Item) {
-        self.id = UUID()
+        self.id = item.id
         self.name = item.name
         self.notes = item.notes
         self.quantity = item.quantity

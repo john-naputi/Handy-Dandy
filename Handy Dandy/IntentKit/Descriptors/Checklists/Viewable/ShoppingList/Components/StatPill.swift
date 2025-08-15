@@ -15,18 +15,18 @@ struct StatPill: View {
     @Environment(\.colorScheme) private var colorScheme
     
     let label: String
-    let text: String
+    let value: String
     let style: StatPillStyle
     let icon: String?
     let compact: Bool
     
     init(label: String,
-         text: String,
+         value: String,
          style: StatPillStyle = .neutral,
          icon: String? = nil, compact: Bool = false
     ) {
         self.label = label
-        self.text = text
+        self.value = value
         self.style = style
         self.icon = icon
         self.compact = compact
@@ -53,7 +53,7 @@ struct StatPill: View {
                     .foregroundStyle(colors.fg.opacity(0.7))
             }
             
-            Text(text)
+            Text(value)
                 .font(compact ? .callout : .subheadline)
                 .fontWeight(.semibold)
                 .monospacedDigit()
@@ -66,7 +66,7 @@ struct StatPill: View {
         .background(Capsule().fill(colors.bg))
         .overlay(Capsule().stroke(colors.stroke, lineWidth: colorScheme == .dark ? 0.5 : 0.75))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(label), \(text)")
+        .accessibilityLabel("\(label), \(value)")
     }
     
     private func colorsForStyle(_ style: StatPillStyle) -> (bg: Color, fg: Color, stroke: Color) {
@@ -87,7 +87,7 @@ struct StatPill: View {
 #Preview {
     StatPill(
         label: "Budget",
-        text: "$1.000,00",
+        value: "$1.000,00",
         style: .good,
         icon: "wallet.pass"
     )

@@ -12,7 +12,7 @@ struct ItemRow: View {
     var onToggleDone: (() -> Void)? = nil
     
     private var displayUnitPrice: Decimal? {
-        item.isDone ? item.actualUnitPrice ?? item.expectedUnitPrice : item.expectedUnitPrice
+        item.isDone ? (item.actualUnitPrice ?? item.expectedUnitPrice) : item.expectedUnitPrice
     }
     
     private var displayQuantity: Decimal {
@@ -32,7 +32,11 @@ struct ItemRow: View {
             return nil
         }
         
-        return "\(plain(displayQuantity)) × \(MoneyFormat.string(from: price))"
+        return "\(plain(displayQuantity)) × \(money(from: price))"
+    }
+    
+    private var currencyISO: String? {
+        item.list?.currencyCode.iso
     }
     
     private var accessibilitySummary: String {
@@ -42,7 +46,7 @@ struct ItemRow: View {
         }
         
         if let total = lineTotal {
-            bits.append("Total; \(MoneyFormat.string(from: total))")
+            bits.append("Total: \(money(from: total))")
         }
         
         return bits.joined(separator: ", ")
@@ -61,7 +65,7 @@ struct ItemRow: View {
             .foregroundStyle(item.isDone ? .green : .secondary)
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(item.name)
+                Text(item.name.isEmpty ? "Unnamed Item" : item.name)
                     .font(.body)
                     .strikethrough(item.isDone, color: .secondary)
                     .foregroundStyle(item.isDone ? .secondary : .primary)
@@ -87,22 +91,32 @@ struct ItemRow: View {
                         .foregroundStyle(.tertiary)
                         .lineLimit(1)
                 }
-                
-                Spacer(minLength: 8)
-                
-                Text(lineTotal.map { MoneyFormat.string(from: $0) } ?? "-")
-                    .font(.callout.weight(.semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(item.isDone ? .secondary : .primary)
-                    .accessibilityHidden(true)
             }
             .contentShape(Rectangle())
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(accessibilitySummary)
+            
+            Spacer(minLength: 8)
+            
+            Text(lineTotal.map { money(from: $0) } ?? "-")
+                .font(.callout.weight(.semibold))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .foregroundStyle(item.isDone ? .secondary : .primary)
+                .accessibilityHidden(true)
         }
     }
     
     // MARK: - Derived
+    private func money(from value: Decimal) -> String {
+        if let iso = currencyISO {
+            return MoneyFormat.string(from: value, code: iso)
+        } else {
+            return MoneyFormat.string(from: value)
+        }
+    }
+    
     private func plain(_ value: Decimal) -> String {
         NSDecimalNumber(decimal: value).stringValue
     }
