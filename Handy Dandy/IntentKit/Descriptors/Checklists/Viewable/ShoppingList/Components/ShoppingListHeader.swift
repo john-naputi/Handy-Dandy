@@ -31,31 +31,53 @@ struct ShoppingListHeader: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 12) {
-                StatPill(
-                    label: "Budget",
+            SegmentedStatHeader(segments: [
+                .init(
+                    title: "Budget",
+                    icon: "wallet.pass",
                     value: list.plannedBudget.map { MoneyFormat.string(from: $0, code: iso )} ?? "-",
-                    style: .info,
-                    icon: "wallet.pass"
-                )
-                StatPill(
-                    label: "Estimate",
+                    tint: .primary
+                ),
+                .init(
+                    title: "Estimate",
+                    icon: "cart",
                     value: MoneyFormat.string(from: estimate, code: iso),
-                    style: .neutral,
-                    icon: "cart"
-                )
-                StatPill(
-                    label: "Budget Difference",
+                    tint: .primary
+                ),
+                .init(
+                    title: "Difference",
+                    icon: "triangle.righthalf.filled",
                     value: MoneyFormat.string(from: delta, code: iso),
-                    style: (delta <= 0 ? .good : .warn),
-                    icon: "triangle.righthalf.fill"
+                    tint: (delta <= 0 ? .green : .orange)
                 )
-            }
+            ])
         }
-        .padding(.vertical, 8)
-        .listRowInsets(.init())
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(axSummary)
+//        VStack(alignment: .leading, spacing: 8) {
+//            HStack(spacing: 12) {
+//                StatPill(
+//                    label: "Budget",
+//                    value: list.plannedBudget.map { MoneyFormat.string(from: $0, code: iso )} ?? "-",
+//                    style: .info,
+//                    icon: "wallet.pass"
+//                )
+//                StatPill(
+//                    label: "Estimate",
+//                    value: MoneyFormat.string(from: estimate, code: iso),
+//                    style: .neutral,
+//                    icon: "cart"
+//                )
+//                StatPill(
+//                    label: "Budget Difference",
+//                    value: MoneyFormat.string(from: delta, code: iso),
+//                    style: (delta <= 0 ? .good : .warn),
+//                    icon: "triangle.righthalf.fill"
+//                )
+//            }
+//        }
+//        .padding(.vertical, 8)
+//        .listRowInsets(.init())
+//        .accessibilityElement(children: .combine)
+//        .accessibilityLabel(axSummary)
     }
 }
 

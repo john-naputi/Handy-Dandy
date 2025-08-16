@@ -40,7 +40,7 @@ struct ShoppingListDetailDescriptor: View {
     
     @State private var filter: ItemFilter = .all
     @State private var activeSheet: ActiveSheet? = nil
-    @State private var showDetails = false
+    @State var showDetails = false
     
     let list: ShoppingList
     
@@ -83,8 +83,6 @@ struct ShoppingListDetailDescriptor: View {
                 .onDelete(perform: deleteItems)
             } header: {
                 Text("Items")
-            } footer: {
-                TotalsFooter(estimate: estimateTotal, budget: list.plannedBudget, delta: delta)
             }
             
             Section {
@@ -321,5 +319,5 @@ private extension Collection {
 #Preview {
 //    let checklist = Checklist(title: "First Shopping List", kind: .shoppingList)
     let shoppingList = ShoppingList(title: "Costco")
-    ShoppingListDetailDescriptor(list: shoppingList)
+    ShoppingListDetailDescriptor(showDetails: true, list: shoppingList)
 }
