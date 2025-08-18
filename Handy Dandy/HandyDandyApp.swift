@@ -14,6 +14,6 @@ struct HandyDandyApp: App {
         WindowGroup {
             HandyDandyEntrypoint()
         }
-        .modelContainer(for: [Plan.self, Checklist.self, ChecklistTask.self])
+        .modelContainer(for: [Plan.self, Checklist.self, ChecklistTask.self, TaskList.self, TaskItem.self, ShoppingList.self])
     }
 }
