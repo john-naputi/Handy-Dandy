@@ -16,88 +16,104 @@ struct ExperienceDetailDescriptor: View {
     let experience: Experience
     
     var body: some View {
-        NavigationStack {
-            let plans = experience.plans
+        let plans = experience.plans
+        
+        Group {
+            if plans.isEmpty {
+                PlansListDescriptor(context: .experience(experience), plans: plans)
+            } else {
+                List {
+                    PlansListDescriptor(
+                        context: .experience(experience),
+                        plans: plans,
+                        onSelect: { plan in
+                            self.selectedPlan = plan
+                        },
+                        onDelete: { plan in
+                            self.planToDelete = plan
+                        }
+                    )
+                }
+            }
+        }
+        .navigationTitle("Plans")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showAddPlanSheet.toggle()
+                } label: {
+                    Label("Add Plan", systemImage: "plus.circle.fill")
+                }
+            }
+        }
+        .sheet(isPresented: $showAddPlanSheet) {
+            let newPlan = Plan()
+            let intent = EditableIntent<Plan, DraftPlan>(data: newPlan, mode: .create) { outcome in
+                switch outcome {
+                case .create(let draft):
+                    draft.move(to: newPlan)
+                    experience.add(plan: newPlan)
+                    modelContext.insert(newPlan)
+                    try? modelContext.save()
+                case .cancel:
+                    showAddPlanSheet = false
+                default:
+                    assertionFailure("Invalid outcome for a create-only action.")
+                }
+            }
             
-            Group {
-                if plans.isEmpty {
-                    PlansListDescriptor(context: .experience(experience), plans: plans)
-                } else {
-                    List {
-                        PlansListDescriptor(
-                            context: .experience(experience),
-                            plans: plans,
-                            onSelect: { plan in
-                                self.selectedPlan = plan
-                            },
-                            onDelete: { plan in
-                                self.planToDelete = plan
-                            }
-                        )
-                    }
-                }
-            }
-            .navigationTitle("Plans")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showAddPlanSheet.toggle()
-                    } label: {
-                        Label("Add Plan", systemImage: "plus.circle.fill")
-                    }
-                }
-            }
-            .sheet(isPresented: $showAddPlanSheet) {
-                let newPlan = Plan()
-                let intent = EditablePlanIntent(data: newPlan, mode: .create)
-                
-                EditablePlanDescriptorV2(intent: intent) { plan, mode in
-                    if mode == .create {
-                        experience.plans.append(plan)
-                    }
-                }
-            }
-            .sheet(item: $selectedPlan) { plan in
-                let intent = EditablePlanIntent(data: plan, mode: .update)
-                EditablePlanDescriptorV2(intent: intent) { plan, mode in
-                    if mode == .update {
-                        if let index = experience.plans.firstIndex(where: { $0.id == plan.id }) {
-                            self.experience.plans[index].title = plan.title
-                            self.experience.plans[index].planDescription = plan.planDescription
-                            self.experience.plans[index].kind = plan.kind
-                            self.experience.plans[index].type = plan.type
-                        }
-                    }
-                }
-            }
-            .alert(
-                "Delete Plan?",
-                isPresented: .init(
-                    get: { self.planToDelete != nil },
-                    set: { if !$0 { self.planToDelete = nil }}
-                ),
-                presenting: self.planToDelete,
-                actions: { targetPlan in
-                    Button("Delete", role: .destructive) {
-                        guard let index = self.experience.plans.firstIndex(where: { $0.id == targetPlan.id }) else {
-                            return
-                        }
-                        
-                        self.experience.plans.remove(at: index)
-                        modelContext.delete(targetPlan)
-                        
-                        try? modelContext.save()
+            EditablePlanDescriptorV2(intent: intent)
+        }
+        .sheet(item: $selectedPlan) { plan in
+            let intent = EditableIntent<Plan, DraftPlan>(data: plan, mode: .edit) { outcome in
+                switch outcome {
+                case .update(let draft):
+                    guard let index = experience.plans.firstIndex(where: { $0.id == plan.id }) else {
+                        assertionFailure("The plan you are trying to update does not exist")
+                        return
                     }
                     
-                    Button("Cancel", role: .cancel) {
-                        planToDelete = nil
-                    }
-                },
-                message: { targetPlan in
-                    Text("Are you sure you want to delete the plan: \(targetPlan.title)?")
+                    draft.move(to: plan)
+                    self.experience.plans[index].title = plan.title
+                    self.experience.plans[index].planDescription = plan.planDescription
+                    self.experience.plans[index].kind = plan.kind
+                    self.experience.plans[index].type = plan.type
+                case .cancel:
+                    selectedPlan = nil
+                default:
+                    assertionFailure("Invalid outcome for an update-only action for experiences.")
                 }
-            )
+            }
+            
+            EditablePlanDescriptorV2(intent: intent)
         }
+        .alert(
+            "Delete Plan?",
+            isPresented: .init(
+                get: { self.planToDelete != nil },
+                set: { if !$0 { self.planToDelete = nil }}
+            ),
+            presenting: self.planToDelete,
+            actions: { targetPlan in
+                Button("Delete", role: .destructive) {
+                    guard let index = self.experience.plans.firstIndex(where: { $0.id == targetPlan.id }) else {
+                        return
+                    }
+                    
+                    self.experience.plans.remove(at: index)
+                    modelContext.delete(targetPlan)
+                    
+                    try? modelContext.save()
+                }
+                
+                Button("Cancel", role: .cancel) {
+                    planToDelete = nil
+                }
+            },
+            message: { targetPlan in
+                Text("Are you sure you want to delete the plan: \(targetPlan.title)?")
+            }
+        )
     }
 }
 
@@ -107,7 +123,7 @@ struct ExperienceDetailDescriptor: View {
         type: .flow,
         plans: [
             Plan(title: "Grocery Run", kind: .checklist, type: PlanType.shopping),
-            Plan(title: "Post-Work Excercise", kind: .singleTask, type: PlanType.workout),
+            Plan(title: "Post-Work Excercise", kind: .singleTask, type: PlanType.fitness),
             Plan(title: "Check In Hubby", kind: .singleTask, type: PlanType.emergency),
         ],
         tags: [

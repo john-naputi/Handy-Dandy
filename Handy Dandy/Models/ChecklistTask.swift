@@ -14,20 +14,18 @@ final class ChecklistTask {
     var title: String
     var taskDescription: String
     var isComplete: Bool = false
-    var activityType: ActivityType
     
     @Relationship(deleteRule: .nullify)
     var plan: Plan?
     
-    @Relationship(deleteRule: .nullify, inverse: \Plan.checklists)
+    @Relationship(deleteRule: .nullify)
     var checklist: Checklist?
     
-    init(id: UUID = UUID(), title: String = "", description: String = "", isComplete: Bool = false, activityType: ActivityType = .general, plan: Plan? = nil, checklist: Checklist? = nil) {
+    init(id: UUID = UUID(), title: String = "", description: String = "", isComplete: Bool = false, plan: Plan? = nil, checklist: Checklist? = nil) {
         self.id = id
         self.title = title
         self.taskDescription = description
         self.isComplete = isComplete
-        self.activityType = activityType
         self.plan = plan
         self.checklist = checklist
     }
@@ -38,7 +36,6 @@ final class ChecklistTask {
             title: task.title,
             description: task.taskDescription,
             isComplete: task.isComplete,
-            activityType: task.activityType,
             plan: task.plan,
             checklist: task.checklist
         )
@@ -48,7 +45,6 @@ final class ChecklistTask {
         self.title = target.title
         self.taskDescription = target.taskDescription
         self.isComplete = target.isComplete
-        self.activityType = target.activityType
         self.plan = target.plan
         self.checklist = target.checklist
     }

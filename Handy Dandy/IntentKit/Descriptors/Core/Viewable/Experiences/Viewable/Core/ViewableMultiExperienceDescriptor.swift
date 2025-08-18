@@ -61,25 +61,49 @@ struct ViewableMultiExperienceDescriptor: View {
             }
             .sheet(isPresented: $showCreateExperienceSheet) {
                 let experience = Experience()
-                let intent = EditableExperienceIntent(
-                    data: experience,
-                    mode: .create,
-                )
-                let caller = EditableDescriptorCaller.experience(intent)
+                let intent = EditableIntent<Experience, DraftExperience>(data: experience, mode: .create) { outcome in
+                    switch outcome {
+                    case .create(let draft):
+                        draft.copy(to: experience)
+                        for tag in draft.tagsToDelete(from: experience) {
+                            experience.tags.removeAll { $0.id == tag.id }
+                            modelContext.delete(tag)
+                        }
+                        
+                        let newTags = draft.tagsToAdd(comparedTo: experience.tags)
+                        for tag in newTags {
+                            experience.add(tag)
+                        }
+                        
+                        modelContext.insert(experience)
+                        try? modelContext.save()
+                    default:
+                        assertionFailure("Unepxected outcome in create-only sheet")
+                    }
+                }
                 
-                EditableDescriptorView(caller: caller)
+                EditableExperienceDescriptor(intent: intent)
             }
             .sheet(item: $selectedExperience) { experience in
-                let intent = EditableExperienceIntent(
-                    data: experience,
-                    mode: .update,
-                    onCancel: {
-                        selectedExperience = nil
-                    },
-                    onSave: { _ in
-                        selectedExperience = nil
+                let intent = EditableIntent<Experience, DraftExperience>(data: experience, mode: .edit) { outcome in
+                    switch outcome {
+                    case .update(let draft):
+                        draft.copy(to: experience)
+                        for tag in draft.tagsToDelete(from: experience) {
+                            experience.tags.removeAll { $0.id == tag.id }
+                            modelContext.delete(tag)
+                        }
+                        
+                        let newTags = draft.tagsToAdd(comparedTo: experience.tags)
+                        for tag in newTags {
+                            experience.add(tag)
+                        }
+                        
+                        try? modelContext.save()
+                    default:
+                        assertionFailure("Unexpected outcome for an update-only action")
                     }
-                )
+                }
                 
                 EditableExperienceDescriptor(intent: intent)
             }
