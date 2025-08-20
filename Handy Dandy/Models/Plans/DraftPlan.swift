@@ -23,7 +23,7 @@ struct DraftPlan: Equatable {
     init(from plan: Plan) {
         self.boundPlan = plan
         self.title = plan.title
-        self.notes = plan.planDescription
+        self.notes = plan.notes ?? ""
         self.kind = plan.kind
         self.type = plan.type
     }
@@ -40,12 +40,12 @@ struct DraftPlan: Equatable {
     
     // Materialize into a real Model
     func materialize() -> Plan {
-        Plan(title: title, description: notes, kind: kind, type: type)
+        Plan(title: title, notes: notes, kind: kind, type: type)
     }
     
     func move(to plan: Plan) {
         plan.title = self.title
-        plan.planDescription = self.notes
+        plan.notes = self.notes
         plan.kind = self.kind
         plan.type = self.type
     }

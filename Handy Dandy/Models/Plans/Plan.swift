@@ -11,9 +11,9 @@ import SwiftUI
 
 @Model
 final class Plan {
-    @Attribute(.unique) var id: UUID
+    @Attribute(.unique) var planId: UUID = UUID()
     var title: String
-    var planDescription: String
+    var notes: String?
     var planDate: Date
     var kind: PlanKind
     var type: PlanType
@@ -26,28 +26,32 @@ final class Plan {
     var tasks: [ChecklistTask]
     
     @Relationship(deleteRule: .nullify)
+    var taskLists: [TaskList]
+    
+    @Relationship(deleteRule: .nullify)
     var experience: Experience?
     
     init(
         title: String = "",
-        description: String = "",
+        notes: String? = nil,
         planDate: Date = .now,
         kind: PlanKind = .checklist,
         type: PlanType = .shopping,
         cadence: PlanCadence = .freeform,
         checklists: [Checklist] = [],
         tasks: [ChecklistTask] = [],
+        taskLists: [TaskList] = [],
         experience: Experience? = nil
     ) {
-        self.id = UUID()
-        self.title = String(title.prefix(30))
-        self.planDescription = String(description.prefix(30))
+        self.title = title
+        self.notes = notes
         self.planDate = planDate
         self.kind = kind
         self.type = type
         self.cadence = cadence
         self.checklists = []
         self.tasks = []
+        self.taskLists = []
         self.experience = experience
         
         self.checklists.append(contentsOf: checklists)
@@ -59,6 +63,11 @@ final class Plan {
         for task in self.tasks {
             task.plan = self
         }
+        
+        self.taskLists.append(contentsOf: taskLists)
+        for list in self.taskLists {
+            list.plan = self
+        }
     }
 }
 
@@ -68,7 +77,7 @@ extension Plan: TaskContainer {
     }
     
     func description() -> String {
-        return self.planDescription
+        return self.notes ?? ""
     }
     
     func addTask(_ task: ChecklistTask) {

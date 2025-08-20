@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ExperienceDetailDescriptor: View {
     @Environment(\.modelContext) private var modelContext
     @State private var showAddPlanSheet = false
     @State private var selectedPlan: Plan?
     @State private var planToDelete: Plan?
+    @State private var planToOpen: Plan?
     
     let experience: Experience
     
@@ -26,11 +28,14 @@ struct ExperienceDetailDescriptor: View {
                     PlansListDescriptor(
                         context: .experience(experience),
                         plans: plans,
-                        onSelect: { plan in
-                            self.selectedPlan = plan
+                        onOpen: { plan in
+                            planToOpen = plan
+                        },
+                        onEdit: { plan in
+                            selectedPlan = plan
                         },
                         onDelete: { plan in
-                            self.planToDelete = plan
+                            planToDelete = plan
                         }
                     )
                 }
@@ -44,6 +49,18 @@ struct ExperienceDetailDescriptor: View {
                 } label: {
                     Label("Add Plan", systemImage: "plus.circle.fill")
                 }
+            }
+        }
+        .navigationDestination(item: $planToOpen) { plan in
+            switch plan.kind {
+            case .singleTask:
+                Text("Single Task Coming Soon! - \(plan.title)")
+            case .shoppingList:
+                Text("Shopping List Coming Soon! - \(plan.title)")
+            case .taskList:
+                TaskListHost(plan: plan)
+            case .checklist:
+                TaskListHost(plan: plan)
             }
         }
         .sheet(isPresented: $showAddPlanSheet) {
@@ -75,9 +92,14 @@ struct ExperienceDetailDescriptor: View {
                     
                     draft.move(to: plan)
                     self.experience.plans[index].title = plan.title
-                    self.experience.plans[index].planDescription = plan.planDescription
+                    self.experience.plans[index].notes = plan.notes
                     self.experience.plans[index].kind = plan.kind
                     self.experience.plans[index].type = plan.type
+                    
+                    if let list = try? TaskListBridge(context: self.modelContext).fetchOrCreate(for: plan), list.title != plan.title {
+                        list.title = plan.title
+                        try? self.modelContext.save()
+                    }
                 case .cancel:
                     selectedPlan = nil
                 default:

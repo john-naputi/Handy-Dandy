@@ -48,7 +48,8 @@ enum PlanListContext: Equatable {
 struct PlansListDescriptor: View {
     let context: PlanListContext
     let plans: [Plan]
-    var onSelect: (Plan) -> Void = { _ in }
+    var onOpen: (Plan) -> Void = { _ in }
+    var onEdit: (Plan) -> Void = { _ in }
     var onDelete: (Plan) -> Void = { _ in }
     
     var body: some View {
@@ -58,24 +59,19 @@ struct PlansListDescriptor: View {
             )
         } else {
             ForEach(plans) { plan in
-                NavigationLink {
-                    ChecklistPlanDetailDescriptor(plan: plan)
-                } label: {
-                    PlanRow(plan: plan)
-                        .contextMenu {
-                            Button {
-                                self.onSelect(plan)
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            
-                            Button(role: .destructive) {
-                                self.onDelete(plan)
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
+                PlanRow(plan: plan)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        onOpen(plan)
+                    }
+                    .contextMenu {
+                        Button{ onEdit(plan) } label: { Label("Edit", systemImage: "pencil") }
+                        Button(role: .destructive) {
+                            onDelete(plan)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
                         }
-                }
+                    }
             }
         }
     }
@@ -86,9 +82,9 @@ struct PlansListDescriptor: View {
         title: "Norway Ski Trip",
         type: .flow,
         plans: [
-            Plan(title: "First Plan", description: "First Description", planDate: .now, kind: .checklist, type: .shopping),
-            Plan(title: "Second Plan", description: "Second Description", planDate: .now, kind: .taskList, type: .fitness),
-            Plan(title: "Third Plan", description: "Third Description", planDate: .now, kind: .singleTask, type: .emergency)
+            Plan(title: "First Plan", notes: "First Description", planDate: .now, kind: .checklist, type: .shopping),
+            Plan(title: "Second Plan", notes: "Second Description", planDate: .now, kind: .taskList, type: .fitness),
+            Plan(title: "Third Plan", notes: "Third Description", planDate: .now, kind: .singleTask, type: .emergency)
         ]
     )
     

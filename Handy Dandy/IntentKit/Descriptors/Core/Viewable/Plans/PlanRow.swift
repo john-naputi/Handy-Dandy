@@ -27,6 +27,9 @@ struct PlanRow: View {
             } else {
                 return "Checklist • \(checklistCount) \(checklistCount == 1 ? "list" : "lists")"
             }
+            // TODO: FIX THIS SHOPPING LIST ITEM
+        case .shoppingList:
+            return "Shopping List • \(plan.tasks.count) items"
         }
     }
     
@@ -47,7 +50,7 @@ struct PlanRow: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
                 
-                if !plan.planDescription.isEmpty {
+                if let notes = plan.notes, !notes.isEmpty {
                     Text(plan.description())
                         .font(.body)
                 }

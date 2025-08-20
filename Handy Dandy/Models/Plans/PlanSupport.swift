@@ -13,6 +13,7 @@ enum PlanKind: String, Codable, CaseIterable, Identifiable {
     case singleTask // Exactly one task
     case taskList // Sequence of Tasks
     case checklist // Sequence of Checklists
+    case shoppingList
     
     var id: Self {
         self
@@ -23,6 +24,7 @@ enum PlanKind: String, Codable, CaseIterable, Identifiable {
         case .singleTask: "Single Task"
         case .taskList: "Task List"
         case .checklist: "Checklist"
+        case .shoppingList: "Shopping List"
         }
     }
     
@@ -31,6 +33,7 @@ enum PlanKind: String, Codable, CaseIterable, Identifiable {
         case .singleTask: return "Exactly one task. Great for a single workout or errand."
         case .taskList: return "One or more tasks. Optionally ordered or timed."
         case .checklist: return "One or more checklists (e.g., a Shopping List)."
+        case .shoppingList: return "A list of items to buy from a store."
         }
     }
     
@@ -42,6 +45,8 @@ enum PlanKind: String, Codable, CaseIterable, Identifiable {
             return [.general, .maintenance, .emergency, .fitness]
         case .checklist:
             return [.shopping, .general]
+        case .shoppingList:
+            return [.general, .shopping]
         }
     }
     
