@@ -15,15 +15,18 @@ struct TaskListSummaryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(percentText).font(.headline)
+            
             ProgressView(value: progress)
                 .accessibilityLabel("Task Completion Progress")
                 .accessibilityValue("\(Int((progress).rounded(.toNearestOrEven) * 100)) percent completed")
+            
             Text(detailText)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(alignment: .leading)
+        .accessibilityElement(children: .combine)
     }
 }
 

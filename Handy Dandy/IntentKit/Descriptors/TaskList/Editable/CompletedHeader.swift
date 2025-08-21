@@ -14,7 +14,10 @@ struct CompletedHeader: View {
     var body: some View {
         if dynamicTypeSize.isAccessibilitySize {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Completed").textCase(nil)
+                Text("Completed")
+                    .textCase(nil)
+                    .accessibilityAddTraits(.isHeader)
+                
                 Spacer(minLength: 8)
                 Button(role: .destructive) { onClearCompleted() } label: { Text("Clear Completed").lineLimit(2) }
                     .accessibilityLabel("Clear completed tasks")
