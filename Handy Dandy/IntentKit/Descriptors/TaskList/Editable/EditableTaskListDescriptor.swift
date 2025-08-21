@@ -51,6 +51,8 @@ struct EditableTaskListDescriptor: View {
                         .onSubmit {
                             focusedField = .newItem
                         }
+                        .accessibilityLabel("List Title")
+                        .accessibilityHint("Enter a name for this list")
                 }
                 
                 // MARK: Items
@@ -62,6 +64,7 @@ struct EditableTaskListDescriptor: View {
                                 #if os(iOS)
                                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                 #endif
+                                AccessibilityHelpers.announce(item.isDone ? "Marked done" : "Marked not done")
                             } label: {
                                 Image(systemName: item.isDone ? "checkmark.circle.fill" : "circle")
                                     .imageScale(.large)
@@ -69,8 +72,8 @@ struct EditableTaskListDescriptor: View {
                                     .foregroundStyle(item.isDone ? Color(UIColor.systemGreen) : .primary)
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel(item.isDone ? "Mark as not done" : "Mark as done")
-                            .accessibilityHint("toggles completion for \(item.text.isEmpty ? "this task" : item.text)")
+                            .accessibilityLabel(item.isDone ? "Mark task as not done" : "Mark task as done")
+                            .accessibilityHint(item.text.isEmpty ? "Toggles completion" : "Toggles completion for \(item.text)")
                             
                             TextField("Task", text: $item.text)
                                 .focused($focusedField, equals: .item(item.id))
@@ -80,23 +83,38 @@ struct EditableTaskListDescriptor: View {
                                 .foregroundStyle(item.isDone ? .secondary : .primary)
                                 .lineLimit(nil)
                                 .fixedSize(horizontal: false, vertical: true)
+                                .accessibilityLabel("Task")
+                                .accessibilityValue(item.isDone ? "Completed" : "Not Completed")
+                                .accessibilityHint("Edit the task text")
+                                .accessibilityAction(named: item.isDone ? "Mark as not done" : "Mark as done") {
+                                    item.isDone.toggle()
+                                    AccessibilityHelpers.announce(item.isDone ? "Marked done" : "Marked not done")
+                                }
+                                .accessibilityAction(named: "Delete task") {
+                                    removeItems(where: { $0.id == item.id })
+                                    AccessibilityHelpers.announce("Task deleted")
+                                }
+                                .accessibilityAction(named: "Edit text") {
+                                    focusedField = .item(item.id)
+                                }
+                                .accessibilityAdjustableAction { direction in
+                                    switch direction {
+                                    case .increment:
+                                        moveItems(item.id, delta: 1)
+                                        AccessibilityHelpers.announce("Moved down")
+                                    case .decrement:
+                                        moveItems(item.id, delta: -1)
+                                        AccessibilityHelpers.announce("Moved up")
+                                    @unknown default:
+                                        break
+                                    }
+                                }
                         }
                         .id(item.id)
-                        .accessibilityAction(named: item.isDone ? "Mark as not done" : "Mark as done") {
-                            item.isDone.toggle()
-                        }
-                        .accessibilityAction(named: "Delete task") {
-                            removeItems(where: { $0.id == item.id })
-                        }
-                        .accessibilityAction(named: "Edit text") {
-                            focusedField = .item(item.id)
-                        }
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel(item.text.isEmpty ? "The task is empty" : item.text)
-                        .accessibilityValue(item.isDone ? "The task is complete" : "The task is not complete")
                         .swipeActions(edge: .trailing) {
                             Button(role: .destructive) {
                                 removeItems(where: { $0.id == item.id })
+                                AccessibilityHelpers.announce("Task deleted")
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
@@ -117,8 +135,11 @@ struct EditableTaskListDescriptor: View {
                             .focused($focusedField, equals: .newItem)
                             .submitLabel(.done)
                             .onSubmit{ addNew() }
+                            .accessibilityLabel("New task")
+                            .accessibilityHint("Enter text for a new task")
                         Button("Add") { addNew() }
                             .disabled(newText.trimmed().isEmpty)
+                            .accessibilityHint("Adds the new task to the list")
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -133,21 +154,39 @@ struct EditableTaskListDescriptor: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", role: .cancel) { onCancel() }
+                        .accessibilityLabel("Cancel editing")
+                        .accessibilityHint("Discard changes")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
                         .bold()
                         .disabled(!canSave)
+                        .accessibilityLabel("Save changes")
+                        .accessibilityHint("Save your changes to the list")
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    EditButton()
+                        .accessibilityLabel("Reorder tasks")
+                        .accessibilityHint("Enter reordering mode to move tasks")
                 }
             }
         }
         .onAppear {
             focusedField = draft.title.trimmed().isEmpty ? .title : .newItem
             observeKeyboard()
+            AccessibilityHelpers.announce("Editing list")
         }
         .onDisappear {
             unobserveKeyboard()
+            AccessibilityHelpers.announce("List saved")
         }
+    }
+    
+    private func moveItems(_ id: UUID, delta: Int) {
+        guard let index = draft.items.firstIndex(where: { $0.id == id }) else { return }
+        let newIndex = max(0, min(draft.items.count - 1, index + delta))
+        guard newIndex != index else { return }
+        draft.items.move(fromOffsets: IndexSet(integer: index), toOffset: newIndex > index ? newIndex + 1 : newIndex)
     }
     
     private func itemsHeader() -> some View {
@@ -161,7 +200,7 @@ struct EditableTaskListDescriptor: View {
                 .accessibilityAddTraits(.isHeader)
             
             ProgressView(value: progress)
-                .accessibilityLabel("Progress")
+                .accessibilityLabel("Task completion progress")
                 .accessibilityValue("\(done) of \(total) tasks complete")
             
             Text(getProgressViewText(count: remaining))

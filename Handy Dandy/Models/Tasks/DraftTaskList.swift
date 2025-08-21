@@ -21,6 +21,6 @@ struct DraftTaskList: Identifiable {
     init(from shadow: TaskListShadow) {
         self.id = shadow.id
         self.title = shadow.title
-        self.items = shadow.tasks.map(DraftTaskItem.init)
+        self.items = shadow.tasks.compactMap(DraftTaskItem.init(from:))
     }
 }

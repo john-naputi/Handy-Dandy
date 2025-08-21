@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TaskItemShadow: Identifiable, Equatable {
+struct GeneralTaskShadow: Identifiable, Equatable {
     let id: UUID
     let text: String
     let isDone: Bool
@@ -24,7 +24,7 @@ struct TaskItemShadow: Identifiable, Equatable {
         self.isDone = model.isDone
     }
     
-    func toggle() -> TaskItemShadow {
-        TaskItemShadow(id: id, text: text, isDone: !isDone)
+    func toggle() -> GeneralTaskShadow {
+        GeneralTaskShadow(id: id, text: text, isDone: !isDone)
     }
 }

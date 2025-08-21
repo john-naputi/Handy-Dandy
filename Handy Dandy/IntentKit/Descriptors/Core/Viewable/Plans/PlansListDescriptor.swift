@@ -40,11 +40,6 @@ enum PlanListContext: Equatable {
     }
 }
 
-//struct PlansListActions {
-//    var onSelect: ((Plan) -> Void)?
-//    var onDelete: ((Plan) -> Void)?
-//}
-
 struct PlansListDescriptor: View {
     let context: PlanListContext
     let plans: [Plan]

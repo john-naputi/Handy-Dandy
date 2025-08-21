@@ -21,6 +21,13 @@ final class TaskListStore {
         let sortIndex: Int
     }
     
+    enum RowEdit {
+        case setText(String)
+        case setDone(Bool)
+    }
+    
+    private let makeItem: (TaskItem) -> TaskListItemShadow
+    
     // Attributes
     private let context: ModelContext
     private let listID: UUID
@@ -33,17 +40,33 @@ final class TaskListStore {
     var onShadowChanged: ((TaskListShadow?) -> Void)?
     #endif
     
-    init(context: ModelContext, listID: UUID) {
+    init(context: ModelContext, listID: UUID, makeItem: @escaping (TaskItem) -> TaskListItemShadow) {
         self.context = context
         self.listID = listID
+        self.makeItem = makeItem
         reload()
         normalizeSortIndicesIfNeeded()
+    }
+    
+    convenience init(context: ModelContext, listID: UUID) {
+        self.init(
+            context: context,
+            listID: listID,
+            makeItem: { task in
+                TaskListItemShadow(payload: .general(.init(
+                    id: task.taskItemId,
+                    text: task.text,
+                    isDone: task.isDone
+                )))
+            }
+        )
     }
     
     private func reload() {
         do {
             if let list = try fetchList() {
-                shadow = TaskListShadow(from: list)
+                let items = list.tasks.sorted(by: canonicalLessThan).map(makeItem)
+                shadow = TaskListShadow(id: list.taskListId, title: list.title, tasks: items)
             } else {
                 shadow = nil
             }
@@ -55,10 +78,7 @@ final class TaskListStore {
     
     private func mutateIfChanged(_ apply: (TaskList) throws -> Bool) {
         do {
-            guard let list = try fetchList() else {
-                return
-            }
-            
+            guard let list = try fetchList() else { return }
             let changed = try apply(list)
             guard changed else {
                 lastError = nil
@@ -68,8 +88,8 @@ final class TaskListStore {
             list.updatedAt = .now
             try context.save()
             
-            let newShadow = TaskListShadow(from: list)
-            shadow = newShadow
+            let items = list.tasks.sorted(by: canonicalLessThan).map(makeItem)
+            shadow = TaskListShadow(id: list.taskListId, title: list.title, tasks: items)
             
             #if DEBUG
             onDidSave?()
@@ -158,7 +178,7 @@ final class TaskListStore {
                 return $0.taskItemId < $1.taskItemId
             }
             
-            guard canonical.map(\.id) != list.tasks.map(\.id) else { return false }
+            guard canonical.map(\.taskItemId) != list.tasks.map(\.taskItemId) else { return false }
             
             assignSortIndices(canonical)
             list.tasks.removeAll(keepingCapacity: true)
@@ -351,6 +371,59 @@ final class TaskListStore {
         }
     }
     
+    typealias RowMutation = (inout TaskItem) -> Void
+    
+    /// Mutate a single row in-place. We optimistically mark updated and save.
+    /// Keep the mutation small and idempotent at call sites.
+    func edit(_ id: UUID, mutate: RowMutation) {
+        mutateIfChanged { list in
+            guard let index = list.tasks.firstIndex(where: { $0.taskItemId == id }) else { return false}
+            
+            mutate(&list.tasks[index])
+            list.tasks[index].updatedAt = .now
+            return true
+        }
+    }
+    
+    // KeyPath setters (Equatable overloads)
+    func set<V: Equatable>(
+        _ id: UUID,
+        _ keyPath: ReferenceWritableKeyPath<TaskItem, V>,
+        to value: V,
+        touchUpdatedAt: Bool = true
+    ) {
+        mutateIfChanged { list in
+            guard let index = list.tasks.firstIndex(where: { $0.taskItemId == id }) else { return false }
+            let before = list.tasks[index][keyPath: keyPath]
+            guard before != value else { return false }
+            list.tasks[index][keyPath: keyPath] = value
+            if touchUpdatedAt {
+                list.tasks[index].updatedAt = .now
+            }
+            
+            return true
+        }
+    }
+    
+    func setOptional<V: Equatable>(
+        _ id: UUID,
+        _ keyPath: ReferenceWritableKeyPath<TaskItem, V?>,
+        to value: V?,
+        touchUpdatedAt: Bool = true
+    ) {
+        mutateIfChanged { list in
+            guard let index = list.tasks.firstIndex(where: { $0.taskItemId == id }) else { return false }
+            let before = list.tasks[index][keyPath: keyPath]
+            guard before != value else { return false }
+            list.tasks[index][keyPath: keyPath] = value
+            if touchUpdatedAt {
+                list.tasks[index].updatedAt = .now
+            }
+            
+            return true
+        }
+    }
+    
     // MARK: Internal helpers
     private func nextSortIndex(for list: TaskList) -> Int {
         (list.tasks.map(\.sortIndex).max() ?? -1) + 1
@@ -375,7 +448,7 @@ final class TaskListStore {
                 return $0.taskItemId.uuidString < $1.taskItemId.uuidString
             }
             
-            let needs = Set(tasks.map(\.id)).count != tasks.count
+            let needs = Set(tasks.map(\.taskItemId)).count != tasks.count
             || !ordered.enumerated().allSatisfy { $0.element.sortIndex == $0.offset }
             
             guard needs else { return false }
@@ -389,16 +462,12 @@ final class TaskListStore {
     }
     
     private func canonicalOrder(_ tasks: [TaskItem]) -> [TaskItem] {
-        tasks.sorted {
-            if $0.sortIndex != $1.sortIndex {
-                return $0.sortIndex < $1.sortIndex
-            }
-            
-            if $0.createdAt != $1.createdAt {
-                return $0.createdAt < $1.createdAt
-            }
-            
-            return $0.taskItemId.uuidString < $1.taskItemId.uuidString
-        }
+        tasks.sorted(by: canonicalLessThan)
+    }
+    
+    private func canonicalLessThan(_ first: TaskItem, _ second: TaskItem) -> Bool {
+        if first.sortIndex != second.sortIndex { return first.sortIndex < second.sortIndex }
+        if first.createdAt != second.createdAt { return first.createdAt < second.createdAt }
+        return first.taskItemId.uuidString < second.taskItemId.uuidString
     }
 }

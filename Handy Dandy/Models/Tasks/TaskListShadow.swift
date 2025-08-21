@@ -10,7 +10,7 @@ import Foundation
 struct TaskListShadow: Equatable {
     let id: UUID
     let title: String
-    let tasks: [TaskItemShadow]
+    let tasks: [TaskListItemShadow]
     
     var doneCount: Int { tasks.count(where: { $0.isDone }) }
     
@@ -39,12 +39,12 @@ struct TaskListShadow: Equatable {
     }
     
     // Sorting helper: todos first, then stable alpha by text
-    var tasksTodosFirst: [TaskItemShadow] {
+    var tasksTodosFirst: [TaskListItemShadow] {
         tasks.sorted{ (first, second) in
             switch (first.isDone, second.isDone) {
             case (false, true): return true
             case (true, false): return false
-            default: return first.text.localizedCaseInsensitiveCompare(second.text) == .orderedAscending
+            default: return first.title.localizedCaseInsensitiveCompare(second.title) == .orderedAscending
             }
         }
     }
@@ -53,7 +53,7 @@ struct TaskListShadow: Equatable {
         let q = query.trimmed()
         guard !q.isEmpty else { return true }
         if title.localizedCaseInsensitiveContains(q) { return true }
-        return tasks.contains { $0.text.localizedCaseInsensitiveContains(q) }
+        return tasks.contains { $0.title.localizedCaseInsensitiveContains(q) }
     }
     
     var isEmpty: Bool {
@@ -64,41 +64,23 @@ struct TaskListShadow: Equatable {
         return remainingCount > 0
     }
     
-    var firstTodo: TaskItemShadow? {
+    var firstTodo: TaskListItemShadow? {
         tasksTodosFirst.first(where: { !$0.isDone })
     }
     
-    init(id: UUID, title: String, tasks: [TaskItemShadow]) {
+    init(id: UUID, title: String, tasks: [TaskListItemShadow]) {
         self.id = id
         self.title = title
         self.tasks = tasks
     }
     
-    init(from model: TaskList) {
-        self.id = model.taskListId
-        self.title = model.title
-        let ordered = model.tasks.sorted {
-            if $0.sortIndex != $1.sortIndex {
-                return $0.sortIndex < $1.sortIndex
-            }
-            
-            if $0.createdAt != $1.createdAt {
-                return $0.createdAt < $1.createdAt
-            }
-            
-            return $0.taskItemId.uuidString < $1.taskItemId.uuidString
-        }
-        
-        self.tasks = ordered.map { TaskItemShadow(from: $0 )}
-    }
-    
-    func replacing(task: TaskItemShadow) -> TaskListShadow {
+    func replacing(task: TaskListItemShadow) -> TaskListShadow {
         let newTasks = tasks.map { $0.id == task.id ? task : $0 }
         return TaskListShadow(id: id, title: title, tasks: newTasks)
     }
     
     func toggle(taskID: UUID) -> TaskListShadow {
-        let newTasks = tasks.map { $0.id == taskID ? $0.toggle() : $0 }
+        let newTasks = tasks.map { $0.id == taskID ? $0.toggled() : $0 }
         return TaskListShadow(id: id, title: title, tasks: newTasks)
     }
 }

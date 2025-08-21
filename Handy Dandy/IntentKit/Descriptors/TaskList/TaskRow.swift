@@ -10,7 +10,7 @@ import SwiftUI
 struct TaskRow: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     
-    let item: TaskItemShadow
+    let item: GeneralTaskShadow
     var onToggle: () -> Void = {}
     var onDelete: () -> Void = {}
     var onEdit: () -> Void = {}
@@ -71,6 +71,6 @@ struct TaskRow: View {
 }
 
 #Preview {
-    let item = TaskItemShadow(id: UUID(), text: "Test Item", isDone: true)
+    let item = GeneralTaskShadow(id: UUID(), text: "Test Item", isDone: true)
     TaskRow(item: item)
 }

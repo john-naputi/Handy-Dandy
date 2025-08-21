@@ -52,16 +52,7 @@ struct ExperienceDetailDescriptor: View {
             }
         }
         .navigationDestination(item: $planToOpen) { plan in
-            switch plan.kind {
-            case .singleTask:
-                Text("Single Task Coming Soon! - \(plan.title)")
-            case .shoppingList:
-                Text("Shopping List Coming Soon! - \(plan.title)")
-            case .taskList:
-                TaskListHost(plan: plan)
-            case .checklist:
-                TaskListHost(plan: plan)
-            }
+            PlanRouter.view(for: plan)
         }
         .sheet(isPresented: $showAddPlanSheet) {
             let newPlan = Plan()

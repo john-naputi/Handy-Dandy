@@ -8,6 +8,12 @@
 import SwiftUI
 import SwiftData
 import Observation
+import UIKit
+
+@inline(__always)
+private func announce(_ text: String) {
+    UIAccessibility.post(notification: .announcement, argument: text)
+}
 
 struct TaskListContainer: View {
     @Bindable var store: TaskListStore
@@ -18,6 +24,8 @@ struct TaskListContainer: View {
     @State private var dismissTask: Task<Void, Never>?
     @State private var toastGeneration = 0
     
+    let type: PlanType
+    
     var body: some View {
         NavigationStack {
             Group {
@@ -27,13 +35,18 @@ struct TaskListContainer: View {
                         onToggle: { store.toggleTask($0) },
                         onDelete: { store.deleteTask($0) },
                         onClearCompleted: {
-                            let snapshots = store.clearCompletedReturningSnapshots()
-                            triggerUndoToast(for: snapshots)
+                            let snapshot = store.clearCompletedReturningSnapshots()
+                            triggerUndoToast(for: snapshot)
                         },
-                        onEdit: {
-                            renameTarget = .init(from: $0)
+                        onEdit: { item in
+                            beginRenameIfSupported(item)
                         }
-                    )
+                    ) { item in
+                        row(for: item)
+                    }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Task List")
+                    .accessibilityValue("\(shadow.doneCount) of \(shadow.tasks.count) completed")
                     .navigationTitle(shadow.title)
                     .navigationBarTitleDisplayMode(.inline)
                 } else {
@@ -46,6 +59,8 @@ struct TaskListContainer: View {
                         Button("Edit") {
                             draftTaskList = DraftTaskList(from: shadow)
                         }
+                        .accessibilityLabel("Edit List")
+                        .accessibilityHint("Opens the editor to rename the list and modify tasks")
                     }
                 }
             }
@@ -117,6 +132,10 @@ struct TaskListContainer: View {
                     showUndoToast = false
                     lastCleared = []
                 }
+                
+                announce(lastCleared.count == 1
+                         ? "Cleared 1 completed task. Undo is at the bottom of the screen."
+                         : "Cleared \(lastCleared.count) completed tasks. Undo is at the bottom of the screen.")
             }
         }
     }
@@ -125,6 +144,9 @@ struct TaskListContainer: View {
         HStack(spacing: 12) {
             Image(systemName: "checkmark.circle")
                 .imageScale(.large)
+                .symbolRenderingMode(.hierarchical)
+                .accessibilityHidden(true)
+            
             Text(count == 1 ? "Cleared 1 Completed Task" : "Cleared \(count) Completed Tasks")
                 .lineLimit(1)
             Spacer()
@@ -132,18 +154,60 @@ struct TaskListContainer: View {
                 dismissTask?.cancel()
                 toastGeneration &+= 1
                 undo()
+                announce("Undid the removal of completed tasks.")
             }
             .bold()
+            .accessibilityHint("Restores the cleared tasks.")
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .background(.ultraThinMaterial, in: Capsule())
         .padding(.horizontal)
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(count == 1
+                            ? "Cleared 1 completed task"
+                            : "Cleared \(count) completed tasks")
+        .accessibilityHint("Double-tap Undo to restore the cleared tasks.")
         .onTapGesture {
             dismissTask?.cancel()
             toastGeneration &+= 1
             dismiss()
+            announce("Dismissed.")
         }
+    }
+    
+    @ViewBuilder
+    private func row(for item: TaskListItemShadow) -> some View {
+        switch item.payload {
+        case .general(let general):
+            TaskRow(
+                item: general,
+                onToggle: { store.toggleTask(general.id) },
+                onDelete: { store.deleteTask(general.id) },
+                onEdit: { beginRenameIfSupported(.init(payload: .general(general)))}
+            )
+        case .shopping(let shopping):
+            ShoppingRow(
+                item: shopping,
+                onToggle: { store.toggleTask(shopping.id) },
+                onDelete: { store.deleteTask(shopping.id) },
+                onEdit: { beginRenameIfSupported(.init(payload: .shopping(shopping)))}
+            )
+        }
+    }
+    
+    private func beginRenameIfSupported(_ item: TaskListItemShadow) {
+        item.fold(
+            general: { general in
+                renameTarget = .init(from: general)
+                announce("Editing \(general.text)")
+            },
+            shopping: { shopping in
+                // Get ready for this!!!
+                announce("Editing \(shopping.name)")
+            }
+        )
     }
 }
 
@@ -173,6 +237,6 @@ fileprivate struct TaskListContainerPreview: View {
     }
     
     var body: some View {
-        TaskListContainer(store: store)
+        TaskListContainer(store: store, type: .general)
     }
 }

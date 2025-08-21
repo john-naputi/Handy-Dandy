@@ -19,7 +19,7 @@ struct TaskListHost: View {
     var body: some View {
         Group {
             if let store {
-                TaskListContainer(store: store)
+                TaskListContainer(store: store, type: plan.type)
             } else {
                 ProgressView("Loading...")
                     .task { await bootstrap() }

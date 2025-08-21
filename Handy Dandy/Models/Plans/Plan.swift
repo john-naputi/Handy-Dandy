@@ -31,6 +31,8 @@ final class Plan {
     @Relationship(deleteRule: .nullify)
     var experience: Experience?
     
+    var schemaVersion: Int
+    
     init(
         title: String = "",
         notes: String? = nil,
@@ -41,7 +43,8 @@ final class Plan {
         checklists: [Checklist] = [],
         tasks: [ChecklistTask] = [],
         taskLists: [TaskList] = [],
-        experience: Experience? = nil
+        experience: Experience? = nil,
+        schemaVersion: Int = 1
     ) {
         self.title = title
         self.notes = notes
@@ -53,6 +56,7 @@ final class Plan {
         self.tasks = []
         self.taskLists = []
         self.experience = experience
+        self.schemaVersion = schemaVersion
         
         self.checklists.append(contentsOf: checklists)
         for checklist in self.checklists {
