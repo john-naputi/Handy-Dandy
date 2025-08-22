@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SingleTaskReadonlyView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var editTaskSheet: Bool = false
     
     let shadow: SingleTaskShadow
     
@@ -17,6 +18,7 @@ struct SingleTaskReadonlyView: View {
     var onEditNotes: () -> Void = {}
     var onSetDue: () -> Void = {}
     var onClearDue: () -> Void = {}
+    var onEdit: () -> Void = {}
     
     var body: some View {
         List {
@@ -50,7 +52,7 @@ struct SingleTaskReadonlyView: View {
                         .symbolRenderingMode(.hierarchical)
                         .foregroundStyle(shadow.isDone ? .green : .primary)
                         .accessibilityHidden(true)
-                    Text("Mark as \(shadow.isDone ? "completed" : "incomplete")")
+                    Text("Mark as \(shadow.isDone ? "incomplete" : "complete")")
                     Spacer()
                 }
                 .contentShape(Rectangle())
@@ -126,6 +128,15 @@ struct SingleTaskReadonlyView: View {
         .navigationTitle("Task")
         .navigationBarTitleDisplayMode(.inline)
         .animation(.default, value: shadow.isDone)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    onEdit()
+                } label: {
+                    Label("Edit", systemImage: "square.and.pencil")
+                }
+            }
+        }
     }
 }
 

@@ -12,7 +12,7 @@ struct PlanRouter {
     static func view(for plan: Plan) -> some View {
         switch plan.kind {
         case .singleTask:
-            SingleTaskContainerHost(plan: plan)
+            SingleTaskHost(plan: plan)
         case .shoppingList:
             Text("Shopping List Coming Soon! - \(plan.title)")
         case .taskList:

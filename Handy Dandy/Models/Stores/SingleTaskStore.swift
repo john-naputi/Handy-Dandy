@@ -185,3 +185,19 @@ final class SingleTaskStore {
         }
     }
 }
+
+extension SingleTaskStore {
+    func makeDraft() -> DraftSingleTaskPlan?{
+        do {
+            guard let plan = try fetchPlan(), let task = plan.singleTask else { return nil }
+            return DraftSingleTaskPlan(
+                title: plan.title,
+                notes: task.notes,
+                dueAt: task.dueAt,
+                isDone: task.isDone
+            )
+        } catch {
+            return nil
+        }
+    }
+}

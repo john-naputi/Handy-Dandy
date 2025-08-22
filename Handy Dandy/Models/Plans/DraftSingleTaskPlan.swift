@@ -33,4 +33,12 @@ struct DraftSingleTaskPlan: Identifiable, Equatable {
         self.dueAt = shadow.dueAt
         self.isDone = shadow.isDone
     }
+    
+    init(from draft: DraftSingleTaskPlan) {
+        self.id = draft.id
+        self.title = draft.title
+        self.notes = draft.notes
+        self.dueAt = draft.dueAt
+        self.isDone = draft.isDone
+    }
 }

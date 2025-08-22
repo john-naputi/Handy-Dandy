@@ -13,6 +13,7 @@ struct EditableSingleTaskPlanView: View {
     var onSave: (DraftSingleTaskPlan) -> Void
     
     @FocusState private var focused: Bool
+    @State private var hasDue: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -22,6 +23,24 @@ struct EditableSingleTaskPlanView: View {
                         .focused($focused)
                         .submitLabel(.done)
                     Toggle("Completed", isOn: $draft.isDone)
+                }
+                
+                Section("Notes") {
+                    TextEditor(text: Binding(
+                        get: { draft.notes ?? "" },
+                        set: { draft.notes = $0.isEmpty ? nil : $0 }
+                    ))
+                    .frame(minHeight: 120)
+                }
+                
+                Section("Schedule") {
+                    Toggle("Has Due Date", isOn: $hasDue)
+                    if hasDue {
+                        DatePicker("Due", selection: Binding(
+                            get: { draft.dueAt ?? Date() },
+                            set: { draft.dueAt = $0 }
+                        ), displayedComponents: [.date, .hourAndMinute])
+                    }
                 }
             }
             .navigationTitle("Edit Task")
@@ -41,6 +60,7 @@ struct EditableSingleTaskPlanView: View {
             }
             .onAppear {
                 focused = true
+                hasDue = draft.dueAt != nil
             }
         }
     }
