@@ -52,6 +52,5 @@ struct EditableSingleTaskPlanView: View {
 }
 
 #Preview {
-    
-    EditableSingleTaskPlanView(draft: DraftSingleTaskPlan(), onCancel: {}, onSave: {_ in })
+    EditableSingleTaskPlanView(draft: .init(title: "Task"), onCancel: {}, onSave: {_ in })
 }

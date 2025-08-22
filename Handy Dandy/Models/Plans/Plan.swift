@@ -18,6 +18,8 @@ final class Plan {
     var kind: PlanKind
     var type: PlanType
     var cadence: PlanCadence
+    var createdAt: Date
+    var updatedAt: Date
     
     @Relationship(deleteRule: .cascade, inverse: \Checklist.plan)
     var checklists: [Checklist]
@@ -31,6 +33,9 @@ final class Plan {
     @Relationship(deleteRule: .nullify)
     var experience: Experience?
     
+    @Relationship(deleteRule: .cascade, inverse: \SingleTask.plan)
+    var singleTask: SingleTask?
+    
     var schemaVersion: Int
     
     init(
@@ -40,10 +45,13 @@ final class Plan {
         kind: PlanKind = .checklist,
         type: PlanType = .shopping,
         cadence: PlanCadence = .freeform,
+        createdAt: Date = .now,
+        updatedAt: Date = .now,
         checklists: [Checklist] = [],
         tasks: [ChecklistTask] = [],
         taskLists: [TaskList] = [],
         experience: Experience? = nil,
+        singleTask: SingleTask? = nil,
         schemaVersion: Int = 1
     ) {
         self.title = title
@@ -52,10 +60,13 @@ final class Plan {
         self.kind = kind
         self.type = type
         self.cadence = cadence
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
         self.checklists = []
         self.tasks = []
         self.taskLists = []
         self.experience = experience
+        self.singleTask = singleTask
         self.schemaVersion = schemaVersion
         
         self.checklists.append(contentsOf: checklists)

@@ -15,6 +15,9 @@ struct ExperienceDetailDescriptor: View {
     @State private var planToDelete: Plan?
     @State private var planToOpen: Plan?
     
+    @State private var planToEditContent: Plan?
+    @State private var selectedPlanToEditMetadata: Plan?
+    
     let experience: Experience
     
     var body: some View {
@@ -72,34 +75,37 @@ struct ExperienceDetailDescriptor: View {
             
             EditablePlanDescriptorV2(intent: intent)
         }
-        .sheet(item: $selectedPlan) { plan in
-            let intent = EditableIntent<Plan, DraftPlan>(data: plan, mode: .edit) { outcome in
-                switch outcome {
-                case .update(let draft):
-                    guard let index = experience.plans.firstIndex(where: { $0.id == plan.id }) else {
-                        assertionFailure("The plan you are trying to update does not exist")
-                        return
-                    }
-                    
-                    draft.move(to: plan)
-                    self.experience.plans[index].title = plan.title
-                    self.experience.plans[index].notes = plan.notes
-                    self.experience.plans[index].kind = plan.kind
-                    self.experience.plans[index].type = plan.type
-                    
-                    if let list = try? TaskListBridge(context: self.modelContext).fetchOrCreate(for: plan), list.title != plan.title {
-                        list.title = plan.title
-                        try? self.modelContext.save()
-                    }
-                case .cancel:
-                    selectedPlan = nil
-                default:
-                    assertionFailure("Invalid outcome for an update-only action for experiences.")
-                }
-            }
-            
-            EditablePlanDescriptorV2(intent: intent)
+        .sheet(item: $planToEditContent) { plan in
+            PlanRouter.editContent(for: plan)
         }
+//        .sheet(item: $selectedPlan) { plan in
+//            let intent = EditableIntent<Plan, DraftPlan>(data: plan, mode: .edit) { outcome in
+//                switch outcome {
+//                case .update(let draft):
+//                    guard let index = experience.plans.firstIndex(where: { $0.id == plan.id }) else {
+//                        assertionFailure("The plan you are trying to update does not exist")
+//                        return
+//                    }
+//                    
+//                    draft.move(to: plan)
+//                    self.experience.plans[index].title = plan.title
+//                    self.experience.plans[index].notes = plan.notes
+//                    self.experience.plans[index].kind = plan.kind
+//                    self.experience.plans[index].type = plan.type
+//                    
+//                    if let list = try? TaskListBridge(context: self.modelContext).fetchOrCreate(for: plan), list.title != plan.title {
+//                        list.title = plan.title
+//                        try? self.modelContext.save()
+//                    }
+//                case .cancel:
+//                    selectedPlan = nil
+//                default:
+//                    assertionFailure("Invalid outcome for an update-only action for experiences.")
+//                }
+//            }
+//            
+//            EditablePlanDescriptorV2(intent: intent)
+//        }
         .alert(
             "Delete Plan?",
             isPresented: .init(

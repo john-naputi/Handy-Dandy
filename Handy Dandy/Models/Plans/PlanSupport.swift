@@ -55,6 +55,29 @@ enum PlanKind: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+enum SingleTaskFlavor: String, Codable, CaseIterable {
+    case general, maintenance, emergency, fitness
+    
+    static func from(planType: PlanType) -> SingleTaskFlavor {
+        switch planType {
+        case .general: return .general
+        case .maintenance: return .maintenance
+        case .emergency: return .emergency
+        case .fitness: return .fitness
+        default: return .general
+        }
+    }
+    
+    var displayName: String {
+        switch self {
+        case .general: return "General"
+        case .maintenance: return "Maintenance"
+        case .emergency: return "Emergency"
+        case .fitness: return "Fitness"
+        }
+    }
+}
+
 enum PlanType: String, Codable, CaseIterable, Identifiable{
     case general // Default
     case shopping // Only valid for checklists

@@ -12,13 +12,25 @@ struct PlanRouter {
     static func view(for plan: Plan) -> some View {
         switch plan.kind {
         case .singleTask:
-            Text("Single Task Coming Soon! - \(plan.title)")
+            SingleTaskContainerHost(plan: plan)
         case .shoppingList:
             Text("Shopping List Coming Soon! - \(plan.title)")
         case .taskList:
             TaskListHost(plan: plan)
         case .checklist:
             TaskListHost(plan: plan)
+        }
+    }
+    
+    @ViewBuilder
+    static func editContent(for plan: Plan) -> some View {
+        switch plan.kind {
+        case .singleTask:
+            Text("Single Task Editor Coming Soon")
+        case .shoppingList:
+            Text("Shopping List Editor Coming Soon")
+        case .taskList, .checklist:
+            TaskListEditHost(plan: plan)
         }
     }
 }
