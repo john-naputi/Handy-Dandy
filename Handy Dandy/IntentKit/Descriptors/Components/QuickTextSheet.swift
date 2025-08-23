@@ -12,6 +12,7 @@ struct QuickTextSheet: View {
     var title: String
     var isMultiline: Bool
     var placeholder: String
+    var allowEmpty: Bool
     var onCancel: () -> Void
     var onSave: (String) -> Void
     
@@ -19,12 +20,14 @@ struct QuickTextSheet: View {
          title: String,
          isMultiline: Bool,
          placeholder: String,
+         allowEmpty: Bool,
          onCancel: @escaping () -> Void,
          onSave: @escaping (String) -> Void) {
         _text = State(initialValue: initial)
         self.title = title
         self.isMultiline = isMultiline
         self.placeholder = placeholder
+        self.allowEmpty = allowEmpty
         self.onCancel = onCancel
         self.onSave = onSave
     }
@@ -58,7 +61,7 @@ struct QuickTextSheet: View {
                         onSave(text)
                     }
                     .bold()
-                    .disabled(text.trimmed().isEmpty)
+                    .disabled(allowEmpty ? false : text.trimmed().isEmpty)
                 }
             }
         }
@@ -66,5 +69,5 @@ struct QuickTextSheet: View {
 }
 
 #Preview {
-    QuickTextSheet(initial: "", title: "Edit Notes", isMultiline: false, placeholder: "Add notes...", onCancel: {}, onSave: {_ in })
+    QuickTextSheet(initial: "", title: "Edit Notes", isMultiline: false, placeholder: "Add notes...", allowEmpty: true, onCancel: {}, onSave: {_ in })
 }

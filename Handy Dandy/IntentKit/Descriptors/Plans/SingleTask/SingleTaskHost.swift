@@ -44,6 +44,9 @@ struct SingleTaskHost: View {
                     onEditNotes: {
                         activeSheet = store.makeDraft().map(SingleTaskSheetRoute.editNotes)
                     },
+                    onClearNotes: {
+                        store.setNotes(nil)
+                    },
                     onSetDue: {
                         activeSheet = store.makeDraft().map(SingleTaskSheetRoute.editDue)
                     },
@@ -70,7 +73,9 @@ struct SingleTaskHost: View {
                             initial: draft.notes ?? "",
                             title: "Edit Notes",
                             isMultiline: true,
-                            placeholder: "Add notes...", onCancel: {
+                            placeholder: "Add notes...",
+                            allowEmpty: true,
+                            onCancel: {
                             activeSheet = nil
                         }, onSave: { newNotes in
                             var newDraft = draft

@@ -16,6 +16,7 @@ struct SingleTaskReadonlyView: View {
     var onToggleDone: () -> Void = {}
     var onEditTitle: () -> Void = {}
     var onEditNotes: () -> Void = {}
+    var onClearNotes: () -> Void = {}
     var onSetDue: () -> Void = {}
     var onClearDue: () -> Void = {}
     var onEdit: () -> Void = {}
@@ -75,49 +76,77 @@ struct SingleTaskReadonlyView: View {
             }
             
             Section {
-                if let notes = shadow.notes, !notes.isEmpty {
-                    Text(notes)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .accessibilityLabel("Notes")
-                        .accessibilityValue(notes)
-                } else {
-                    Text("No notes")
-                        .foregroundStyle(.secondary)
-                        .accessibilityLabel("Notes")
-                        .accessibilityValue("None")
+                VStack(alignment: .leading, spacing: 8) {
+                    if let notes = shadow.notes, !notes.isEmpty {
+                        Text(notes)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .accessibilityLabel("Notes")
+                            .accessibilityValue(notes)
+                    } else {
+                        Text("No notes")
+                            .foregroundStyle(.secondary)
+                            .accessibilityLabel("Notes")
+                            .accessibilityValue("None")
+                    }
                 }
-                
-                Button {
-                    onEditNotes()
-                } label: {
-                    Label("Edit Notes", systemImage: "square.and.pencil")
+                .contentShape(Rectangle())
+                .onTapGesture(perform: onEditNotes)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Notes")
+                .accessibilityHint("Double-tap to edit notes")
+                .accessibilityAddTraits(.isButton)
+                .swipeActions(allowsFullSwipe: false) {
+                    Button {
+                        onEditNotes()
+                    } label: {
+                        Label("Edit notes", systemImage: "applepencil")
+                    }
+                    
+                    if (shadow.notes?.trimmed().isEmpty == false) {
+                        Button() {
+                            onClearNotes()
+                        } label: {
+                            Label("Clear Notes", systemImage: "eraser.fill")
+                        }
+                    }
                 }
-                .accessibilityHint("Open the notes editor")
             } header: {
                 Text("Notes").textCase(nil)
             }
             
             Section {
-                if let dueAt = shadow.dueAt {
-                    HStack {
-                        Text("Due At")
-                        Spacer()
+                HStack {
+                    Text("Due At")
+                    Spacer()
+                    if let dueAt = shadow.dueAt {
                         Text(dueAt.formatted(date: .abbreviated, time: .shortened))
                             .foregroundStyle(.secondary)
-                            .accessibilityLabel("Due At")
-                            .accessibilityValue(dueAt.formatted(date: .abbreviated, time: .shortened))
+                    } else {
+                        Text("No Due Date").foregroundStyle(.secondary)
                     }
-                    Button(role: .destructive) {
-                        onClearDue()
-                    } label: {
-                        Label("Clear Due Date", systemImage: "calendar.badge.minus")
-                    }
-                } else {
-                    Text("No due date").foregroundStyle(.secondary)
-                    Button(role: .destructive) {
+                }
+                .contentShape(Rectangle())
+                .onTapGesture(perform: onSetDue)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Due date")
+                .accessibilityValue(
+                    shadow.dueAt?.formatted(date: .abbreviated, time: .shortened) ?? "None"
+                )
+                .accessibilityHint("Double-tap to set or edit the due date")
+                .accessibilityAddTraits(.isButton)
+                .swipeActions(allowsFullSwipe: false) {
+                    Button {
                         onSetDue()
                     } label: {
-                        Label("Set Due Date", systemImage: "calendar.badge.plus")
+                        Label("Edit Due Date", systemImage: "applepencil")
+                    }
+                    
+                    if shadow.dueAt != nil {
+                        Button {
+                            onClearDue()
+                        } label: {
+                            Label("Clear Due", systemImage: "calendar.badge.minus")
+                        }
                     }
                 }
             } header: {
