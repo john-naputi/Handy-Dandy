@@ -9,11 +9,24 @@ import SwiftUI
 import SwiftData
 
 struct ExperienceDetailDescriptor: View {
+    enum ActiveSheet: Identifiable {
+        case addPlan
+        case editContent(PlanKind, UUID)
+        
+        var id: String {
+            switch self {
+            case .addPlan: return "addPlan"
+            case .editContent(let kind, let id): return "editContent-\(kind)-\(id.uuidString)"
+            }
+        }
+    }
+    
     @Environment(\.modelContext) private var modelContext
     @State private var showAddPlanSheet = false
     @State private var selectedPlan: Plan?
     @State private var planToDelete: Plan?
     @State private var planToOpen: Plan?
+    @State private var activeSheet: ActiveSheet?
     
     @State private var planToEditContent: Plan?
     @State private var selectedPlanToEditMetadata: Plan?
@@ -35,7 +48,7 @@ struct ExperienceDetailDescriptor: View {
                             planToOpen = plan
                         },
                         onEdit: { plan in
-                            selectedPlan = plan
+                            activeSheet = .editContent(plan.kind, plan.planId)
                         },
                         onDelete: { plan in
                             planToDelete = plan
@@ -48,7 +61,7 @@ struct ExperienceDetailDescriptor: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    showAddPlanSheet.toggle()
+                    activeSheet = .addPlan
                 } label: {
                     Label("Add Plan", systemImage: "plus.circle.fill")
                 }
@@ -57,55 +70,32 @@ struct ExperienceDetailDescriptor: View {
         .navigationDestination(item: $planToOpen) { plan in
             PlanRouter.view(for: plan)
         }
-        .sheet(isPresented: $showAddPlanSheet) {
-            let newPlan = Plan()
-            let intent = EditableIntent<Plan, DraftPlan>(data: newPlan, mode: .create) { outcome in
-                switch outcome {
-                case .create(let draft):
-                    draft.move(to: newPlan)
-                    experience.add(plan: newPlan)
-                    modelContext.insert(newPlan)
-                    try? modelContext.save()
-                case .cancel:
-                    showAddPlanSheet = false
-                default:
-                    assertionFailure("Invalid outcome for a create-only action.")
+        .sheet(item: $activeSheet) { sheet in
+            switch sheet {
+            case .addPlan:
+                let newPlan = Plan()
+                let intent = EditableIntent<Plan, DraftPlan>(data: newPlan, mode: .create) { outcome in
+                    switch outcome {
+                    case .create(let draft):
+                        draft.move(to: newPlan)
+                        experience.add(plan: newPlan)
+                        modelContext.insert(newPlan)
+                        try? modelContext.save()
+                    case .cancel:
+                        showAddPlanSheet = false
+                    default:
+                        assertionFailure("Invalid outcome for a create-only action.")
+                    }
+                    
+                    activeSheet = nil
                 }
+                
+                EditablePlanDescriptorV2(intent: intent)
+
+            case .editContent(let planKind, let planId):
+                PlanRouter.editContent(kind: planKind, id: planId)
             }
-            
-            EditablePlanDescriptorV2(intent: intent)
         }
-        .sheet(item: $planToEditContent) { plan in
-            PlanRouter.editContent(for: plan)
-        }
-//        .sheet(item: $selectedPlan) { plan in
-//            let intent = EditableIntent<Plan, DraftPlan>(data: plan, mode: .edit) { outcome in
-//                switch outcome {
-//                case .update(let draft):
-//                    guard let index = experience.plans.firstIndex(where: { $0.id == plan.id }) else {
-//                        assertionFailure("The plan you are trying to update does not exist")
-//                        return
-//                    }
-//                    
-//                    draft.move(to: plan)
-//                    self.experience.plans[index].title = plan.title
-//                    self.experience.plans[index].notes = plan.notes
-//                    self.experience.plans[index].kind = plan.kind
-//                    self.experience.plans[index].type = plan.type
-//                    
-//                    if let list = try? TaskListBridge(context: self.modelContext).fetchOrCreate(for: plan), list.title != plan.title {
-//                        list.title = plan.title
-//                        try? self.modelContext.save()
-//                    }
-//                case .cancel:
-//                    selectedPlan = nil
-//                default:
-//                    assertionFailure("Invalid outcome for an update-only action for experiences.")
-//                }
-//            }
-//            
-//            EditablePlanDescriptorV2(intent: intent)
-//        }
         .alert(
             "Delete Plan?",
             isPresented: .init(

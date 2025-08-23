@@ -15,7 +15,7 @@ struct TaskListEditHost: View {
     @State private var store: TaskListStore?
     @State private var errorText: String?
     
-    let plan: Plan
+    let planId: UUID
     
     var body: some View {
         Group {
@@ -45,9 +45,8 @@ struct TaskListEditHost: View {
     
     private func bootstrap() async {
         do {
-            let target = plan.planId
             var descriptor = FetchDescriptor<Plan>(
-                predicate: #Predicate { $0.planId == target },
+                predicate: #Predicate { $0.planId == planId },
                 sortBy: []
             )
             descriptor.fetchLimit = 1
@@ -67,5 +66,5 @@ struct TaskListEditHost: View {
 }
 
 #Preview {
-    TaskListEditHost(plan: .init(title: "Test Plan"))
+    TaskListEditHost(planId: .init())
 }

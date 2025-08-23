@@ -13,9 +13,10 @@ struct SingleTaskEditHost: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var store: SingleTaskStore?
+    @State private var draft: DraftSingleTaskPlan?
     @State private var errorText: String?
     
-    let plan: Plan
+    let planId: UUID
     
     var body: some View {
         Group {
@@ -45,9 +46,8 @@ struct SingleTaskEditHost: View {
     
     private func bootstrap() async {
         do {
-            let id = plan.planId
             var descriptor = FetchDescriptor<Plan>(
-                predicate: #Predicate { $0.planId == id }
+                predicate: #Predicate { $0.planId == planId }
             )
             descriptor.fetchLimit = 1
             
@@ -64,9 +64,12 @@ struct SingleTaskEditHost: View {
                 try modelContext.save()
             }
             
-            store = SingleTaskStore(
+            let localStore = SingleTaskStore(
                 context: modelContext,
                 planId: fresh.planId, makeShadow: SingleTaskShadowRegistry.make)
+            
+            store = localStore
+            draft = localStore.makeDraft()
         } catch {
             errorText = error.localizedDescription
         }
@@ -74,5 +77,5 @@ struct SingleTaskEditHost: View {
 }
 
 #Preview {
-    SingleTaskEditHost(plan: .init(title: "Editable Single Task Plan"))
+    SingleTaskEditHost(planId: .init())
 }
