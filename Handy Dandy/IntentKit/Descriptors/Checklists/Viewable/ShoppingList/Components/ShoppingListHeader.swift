@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ShoppingListHeader: View {
-    let list: ShoppingList
+    let list: ShoppingListShadow
     var onTapBudget: (() -> Void)? = nil
     var onTapTotal: (() -> Void)? = nil
     
@@ -33,7 +33,7 @@ struct ShoppingListHeader: View {
     }
     
     private var deltaRaw: Decimal {
-        displayedTotal - (list.plannedBudget ?? 0)
+        displayedTotal - (list.budget ?? 0)
     }
     
     private var deltaAbs: Decimal {
@@ -63,7 +63,7 @@ struct ShoppingListHeader: View {
     }
     
     private var budgetValue: String? {
-        list.plannedBudget.map { MoneyFormat.string(from: $0, code: iso )}
+        list.budget.map { MoneyFormat.string(from: $0, code: iso )}
     }
     
     private var budgetDisplay: String {
@@ -121,6 +121,6 @@ struct ShoppingListHeader: View {
 }
 
 #Preview {
-    let list = ShoppingList(title: "Costco")
+    let list = ShoppingListShadow(title: "Test List")
     ShoppingListHeader(list: list)
 }

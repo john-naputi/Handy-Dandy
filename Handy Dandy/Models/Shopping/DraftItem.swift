@@ -20,21 +20,33 @@ struct DraftItem: Identifiable, Equatable {
     var expectedUnitPrice: Decimal?
     var currencyCode: CurrencyCode?
     
-    init(name: String = "", quantity: Decimal = 1, unit: MeasurementUnit = .each, priority: Int = 0) {
-        self.id = UUID()
+    init(
+        id: UUID = .init(),
+        name: String = "",
+        notes: String? = nil,
+        quantity: Decimal = 1,
+        unit: MeasurementUnit = .each,
+        priority: Int = 0,
+        isDone: Bool = false,
+        category: ShoppingCategory = .produce,
+        customCategory: String? = nil,
+        expectedUnitPrice: Decimal? = nil,
+        currencyCode: CurrencyCode? = nil
+    ) {
+        self.id = id
         self.name = name
-        self.notes = nil
+        self.notes = notes
         self.quantity = quantity
         self.unit = unit
         self.priority = priority
-        self.isDone = false
-        self.category = .automotive
-        self.customCategory = nil
-        self.expectedUnitPrice = nil
-        self.currencyCode = nil
+        self.isDone = isDone
+        self.category = category
+        self.customCategory = customCategory
+        self.expectedUnitPrice = expectedUnitPrice
+        self.currencyCode = currencyCode
     }
     
-    init(from item: Item) {
+    init(from item: ShoppingItemShadow, currencyCode: CurrencyCode) {
         self.id = item.id
         self.name = item.name
         self.notes = item.notes
@@ -45,7 +57,7 @@ struct DraftItem: Identifiable, Equatable {
         self.category = item.category
         self.customCategory = item.customCategory
         self.expectedUnitPrice = item.expectedUnitPrice
-        self.currencyCode = item.list?.currencyCode
+        self.currencyCode = currencyCode
     }
     
     func lineTotalLabel(currency code: CurrencyCode) -> String? {

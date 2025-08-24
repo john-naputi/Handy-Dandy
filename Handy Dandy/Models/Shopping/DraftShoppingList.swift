@@ -17,18 +17,18 @@ struct DraftShoppingList {
     var budgetDelta: Decimal?
     var place: Place?
     
-    init(from shoppingList: ShoppingList) {
+    init(from shoppingList: ShoppingListShadow) {
         self.name = shoppingList.title
         self.notes = shoppingList.notes
         self.items = []
-        self.plannedBudget = shoppingList.plannedBudget
+        self.plannedBudget = shoppingList.budget
         self.currencyCode = shoppingList.currencyCode
         self.estimateLabel = shoppingList.estimateLabel
         self.budgetDelta = shoppingList.budgetDelta
-        self.place = shoppingList.place
+        self.place = nil
         
         for item in shoppingList.items {
-            self.items.append(DraftItem(from: item))
+            self.items.append(DraftItem(from: item, currencyCode: shoppingList.currencyCode))
         }
     }
     

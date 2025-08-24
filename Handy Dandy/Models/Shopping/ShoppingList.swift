@@ -166,6 +166,9 @@ final class ShoppingList {
     // Child items
     @Relationship(deleteRule: .cascade, inverse: \Item.list) var items: [Item]
     
+    @Relationship(deleteRule: .nullify)
+    var plan: Plan?
+    
     init(id: UUID = UUID(),
          title: String = "",
          notes: String? = nil,
@@ -178,7 +181,8 @@ final class ShoppingList {
          sortKey: Int = 0,
          createdAt: Date = .now,
          updatedAt: Date = .now,
-         items: [Item] = []
+         items: [Item] = [],
+         plan: Plan? = nil
     ) {
         self.id = id
         self.title = title
@@ -193,6 +197,7 @@ final class ShoppingList {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.items = items
+        self.plan = plan
     }
 }
 

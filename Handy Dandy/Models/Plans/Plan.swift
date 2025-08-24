@@ -36,6 +36,9 @@ final class Plan {
     @Relationship(deleteRule: .cascade, inverse: \SingleTask.plan)
     var singleTask: SingleTask?
     
+    @Relationship(deleteRule: .cascade, inverse: \ShoppingList.plan)
+    var shoppingList: ShoppingList?
+    
     var schemaVersion: Int
     
     init(

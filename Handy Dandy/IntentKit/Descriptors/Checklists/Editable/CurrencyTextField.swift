@@ -189,7 +189,7 @@ extension CurrencyTextField {
 }
 
 #Preview {
-    let shoppingList = ShoppingList()
+    let shoppingList = ShoppingListShadow()
     let draft = DraftShoppingList(from: shoppingList)
     
     CurrencyTextFieldPreview(draft: draft)

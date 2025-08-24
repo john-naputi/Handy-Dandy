@@ -48,7 +48,7 @@ struct ShoppingListDetailsSection: View {
             if let delta = draft.budgetDelta {
                 let over = delta > 0
                 let absoluteDelta = delta < 0 ? -delta : delta
-                let label = MoneyFormat.string(absoluteDelta, code: draft.currencyCode.iso) ?? ""
+                let label = MoneyFormat.string(absoluteDelta, code: draft.currencyCode.iso)
                 
                 HStack {
                     Text("Budget Delta")
@@ -66,7 +66,7 @@ struct ShoppingListDetailsSection: View {
 }
 
 #Preview {
-    let shoppingList = ShoppingList()
+    let shoppingList = ShoppingListShadow()
     let draft = DraftShoppingList(from: shoppingList)
     
     ShoppingListDetailsSectionPreview(draft: draft)

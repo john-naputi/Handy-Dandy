@@ -188,6 +188,7 @@ final class TaskListStore {
         }
     }
     
+    // MARK: List movement actions
     func moveTasks(fromOffsets source: IndexSet, toOffset destination: Int) {
         mutateIfChanged { list in
             guard !source.isEmpty else { return false }

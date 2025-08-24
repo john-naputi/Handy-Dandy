@@ -108,7 +108,7 @@ struct EditShoppingListItemSheet: View {
 }
 
 #Preview {
-    let item = Item()
+    let item = ShoppingItemShadow()
     
-    EditShoppingListItemSheet(draft: DraftItem(from: item), mode: .create, currencyCode: .usd, onSave: { _ in }, onCancel: {})
+    EditShoppingListItemSheet(draft: DraftItem(from: item, currencyCode: .usd), mode: .create, currencyCode: .usd, onSave: { _ in }, onCancel: {})
 }

@@ -114,7 +114,7 @@ struct ShoppingListItemsSection: View {
 }
 
 #Preview {
-    let shoppingList = ShoppingList()
+    let shoppingList = ShoppingListShadow()
     let draft = DraftShoppingList(from: shoppingList)
     
     ShoppingListItemsSectionPreview(draft: draft, onAddTapped: {}, onEditTapped: { _ in })

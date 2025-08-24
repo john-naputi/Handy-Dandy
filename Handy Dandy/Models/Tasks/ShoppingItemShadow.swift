@@ -12,7 +12,7 @@ struct ShoppingItemShadow: Identifiable, Equatable {
     var name: String
     var notes: String?
     var quantity: Decimal
-    var actualQuantity: Decimal?
+    var actualQuantity: Decimal
     var unit: MeasurementUnit
     var isDone: Bool
     var category: ShoppingCategory
@@ -27,6 +27,22 @@ struct ShoppingItemShadow: Identifiable, Equatable {
     var sortKey: Int
     var createdAt: Date
     var updatedAt: Date
+    
+    var expectedPrice: Decimal? {
+        expectedUnitPrice.map { $0 * max(0, quantity) }
+    }
+    
+    var actualPrice: Decimal? {
+        actualUnitPrice.map { $0 * max(0, quantity) }
+    }
+    
+    var categoryDisplayName: String {
+        if let custom = customCategory?.trimmed() {
+            return custom
+        }
+        
+        return category.name
+    }
     
     init(id: UUID = UUID(),
          name: String = "",

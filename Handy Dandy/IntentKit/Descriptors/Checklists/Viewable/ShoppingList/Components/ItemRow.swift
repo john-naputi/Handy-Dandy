@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct ItemRow: View {
-    let item: Item
+    let item: ShoppingItemShadow
+    let currencyCode: CurrencyCode
     var onToggleDone: (() -> Void)? = nil
     
     private var displayUnitPrice: Decimal? {
@@ -36,7 +37,7 @@ struct ItemRow: View {
     }
     
     private var currencyISO: String? {
-        item.list?.currencyCode.iso
+        currencyCode.iso
     }
     
     private var accessibilitySummary: String {
@@ -124,6 +125,6 @@ struct ItemRow: View {
 }
 
 #Preview {
-    let item = Item(name: "Eggs", quantity: 1, unit: .dozen)
-    ItemRow(item: item)
+    let shadow = ShoppingItemShadow(name: "Buy eggs", quantity: 1, unit: .dozen)
+    ItemRow(item: shadow, currencyCode: .usd)
 }
