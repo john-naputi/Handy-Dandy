@@ -42,7 +42,7 @@ enum PlanKind: String, Codable, CaseIterable, Identifiable {
         case .singleTask:
             return [.general, .maintenance, .emergency, .fitness]
         case .taskList:
-            return [.general, .maintenance, .emergency, .fitness]
+            return [.general, .shopping]
         case .checklist:
             return [.shopping, .general]
         case .shoppingList:
